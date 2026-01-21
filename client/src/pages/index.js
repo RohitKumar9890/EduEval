@@ -1,6 +1,7 @@
 import Layout from '../components/Layout';
 import Card from '../components/Card';
 import Button from '../components/Button';
+import Logo from '../components/Logo';
 import { useRouter } from 'next/router';
 
 export default function Home() {
@@ -10,6 +11,9 @@ export default function Home() {
     <Layout>
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
+          <div className="flex justify-center mb-6">
+            <Logo size="xl" showText={false} />
+          </div>
           <h1 className="text-5xl font-bold text-gray-900 mb-4">Welcome to EduEval</h1>
           <p className="text-xl text-gray-600">
             A comprehensive educational evaluation platform with role-based access control
