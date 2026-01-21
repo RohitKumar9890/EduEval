@@ -41,10 +41,42 @@ export const createAnnouncement = asyncHandler(async (req, res) => {
 
   const announcement = await Announcement.create({
     subjectId: req.body.subjectId,
-    postedBy: req.user.id,
+    createdBy: req.user.id,
     title: req.body.title,
     content: req.body.content,
+    priority: req.body.priority || 'normal',
   });
+
+  // Send email notifications for high priority announcements
+  if (req.body.priority === 'high') {
+    const { sendBulkEmail } = await import('../../utils/emailService.js');
+    const { User } = await import('../../models/User.js');
+    const { Section } = await import('../../models/Section.js');
+    
+    // Get all students enrolled in sections for this subject
+    const sections = await Section.find({ subjectId: req.body.subjectId });
+    const studentIds = new Set();
+    sections.forEach(section => {
+      (section.enrolledStudents || []).forEach(id => studentIds.add(id));
+    });
+    
+    if (studentIds.size > 0) {
+      const students = await Promise.all(
+        Array.from(studentIds).map(id => User.findById(id))
+      );
+      
+      const validStudents = students.filter(s => s && s.email);
+      
+      sendBulkEmail(validStudents, 'announcementNotification', (student) => ({
+        studentName: student.name,
+        title: req.body.title,
+        content: req.body.content,
+        subjectName: subject.name || 'Unknown',
+        priority: req.body.priority,
+        announcementUrl: `${process.env.CLIENT_URL || 'http://localhost:3000'}/student/announcements`,
+      })).catch(err => console.error('Email notification error:', err));
+    }
+  }
 
   res.status(201).json({ announcement });
 });

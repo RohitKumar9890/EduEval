@@ -7,8 +7,6 @@ export const requireAuth = async (req, res, next) => {
     const [, token] = header.split(' ');
 
     if (!token) {
-      // eslint-disable-next-line no-console
-      console.log('Auth failed: Missing token');
       return res.status(401).json({ message: 'Missing Authorization token' });
     }
 
@@ -16,16 +14,12 @@ export const requireAuth = async (req, res, next) => {
     const user = await User.findById(decoded.sub);
 
     if (!user || user.isActive === false) {
-      // eslint-disable-next-line no-console
-      console.log(`Auth failed: User not found or inactive - ${decoded.sub}`);
       return res.status(401).json({ message: 'Invalid user' });
     }
 
     req.user = { id: user._id || user.id, role: user.role, email: user.email, name: user.name };
     return next();
   } catch (err) {
-    // eslint-disable-next-line no-console
-    console.log(`Auth failed: ${err.message}`);
     return res.status(401).json({ message: 'Unauthorized' });
   }
 };

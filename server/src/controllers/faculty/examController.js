@@ -89,6 +89,35 @@ export const publishExam = asyncHandler(async (req, res) => {
   if (!exam) return res.status(404).json({ message: 'Exam not found' });
   
   const updatedExam = await Exam.updateById(req.params.id, { isPublished: true });
+  
+  // Send email notifications to enrolled students
+  if (exam.enrolledStudents && exam.enrolledStudents.length > 0) {
+    const { sendBulkEmail } = await import('../../utils/emailService.js');
+    const { User } = await import('../../models/User.js');
+    const { Subject } = await import('../../models/Subject.js');
+    
+    // Get student and subject details
+    const students = await Promise.all(
+      exam.enrolledStudents.map(id => User.findById(id))
+    );
+    const subject = await Subject.findById(exam.subjectId);
+    
+    const validStudents = students.filter(s => s && s.email);
+    
+    // Send notifications
+    sendBulkEmail(validStudents, 'examPublished', (student) => ({
+      studentName: student.name,
+      examTitle: exam.title,
+      subjectName: subject?.name || 'Unknown',
+      durationMinutes: exam.durationMinutes,
+      totalMarks: exam.totalMarks,
+      startsAt: exam.startsAt,
+      endsAt: exam.endsAt,
+      examCode: exam.examCode,
+      examUrl: `${process.env.CLIENT_URL || 'http://localhost:3000'}/student/exams`,
+    })).catch(err => console.error('Email notification error:', err));
+  }
+  
   res.json({ exam: updatedExam });
 });
 

@@ -1,6 +1,5 @@
 import { Exam } from '../../models/Exam.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
-import { FieldValue } from '../../config/firebase.js';
 
 export const joinExamByCode = asyncHandler(async (req, res) => {
   const { examCode } = req.body;

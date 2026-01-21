@@ -35,33 +35,68 @@ export const listPublishedExams = asyncHandler(async (req, res) => {
   const filter = { isPublished: true };
   if (req.query.subjectId) filter.subjectId = req.query.subjectId;
 
-  const exams = await Exam.find(filter)
-    .select('-mcqQuestions.correctOptionIndex -codingQuestions.testCases.expectedOutput')
-    .sort({ createdAt: -1 })
-    .populate('subjectId', 'name code')
-    .lean();
+  let exams = await Exam.find(filter);
+  
+  // Sort manually (Firestore compatible)
+  exams.sort((a, b) => {
+    const dateA = a.createdAt?._seconds || a.createdAt?.seconds || new Date(a.createdAt).getTime() / 1000;
+    const dateB = b.createdAt?._seconds || b.createdAt?.seconds || new Date(b.createdAt).getTime() / 1000;
+    return dateB - dateA;
+  });
+  
+  // Manually populate subject info and sanitize for each exam
+  for (let i = 0; i < exams.length; i++) {
+    exams[i] = sanitizeExamForStudent(exams[i]);
+    
+    if (exams[i].subjectId) {
+      const { Subject } = await import('../../models/Subject.js');
+      const subject = await Subject.findById(exams[i].subjectId);
+      if (subject) {
+        exams[i].subject = { id: subject.id || subject._id, name: subject.name, code: subject.code };
+      }
+    }
+  }
 
   res.json({ exams });
 });
 
 export const getPublishedExam = asyncHandler(async (req, res) => {
-  const exam = await Exam.findOne({ _id: req.params.id, isPublished: true })
-    .populate('subjectId', 'name code')
-    .lean();
+  let exam = await Exam.findOne({ _id: req.params.id, isPublished: true });
   if (!exam) return res.status(404).json({ message: 'Exam not found' });
+
+  // Manually populate subject
+  if (exam.subjectId) {
+    const { Subject } = await import('../../models/Subject.js');
+    const subject = await Subject.findById(exam.subjectId);
+    if (subject) {
+      exam.subject = { id: subject.id || subject._id, name: subject.name, code: subject.code };
+    }
+  }
 
   res.json({ exam: sanitizeExamForStudent(exam) });
 });
 
 export const startAttempt = asyncHandler(async (req, res) => {
-  const exam = await Exam.findOne({ _id: req.params.id, isPublished: true }).lean();
+  const exam = await Exam.findOne({ _id: req.params.id, isPublished: true });
   if (!exam) return res.status(404).json({ message: 'Exam not found' });
 
-  const submission = await Submission.findOneAndUpdate(
-    { examId: exam._id, studentId: req.user.id },
-    { $setOnInsert: { status: 'in_progress' } },
-    { upsert: true, new: true }
-  ).lean();
+  // Check if submission already exists
+  let submission = await Submission.findOne({ 
+    examId: exam._id || exam.id, 
+    studentId: req.user.id 
+  });
+
+  if (!submission) {
+    // Create new submission
+    submission = await Submission.create({
+      examId: exam._id || exam.id,
+      studentId: req.user.id,
+      status: 'in_progress',
+      answers: [],
+      score: 0,
+      maxScore: exam.totalMarks || 0
+    });
+  }
 
   res.status(201).json({ submission });
 });
@@ -70,37 +105,52 @@ export const submitAttempt = asyncHandler(async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
-  const exam = await Exam.findOne({ _id: req.params.id, isPublished: true }).lean();
+  const exam = await Exam.findOne({ _id: req.params.id, isPublished: true });
   if (!exam) return res.status(404).json({ message: 'Exam not found' });
 
-  const submission = await Submission.findOne({ examId: exam._id, studentId: req.user.id });
+  const submission = await Submission.findOne({ examId: exam._id || exam.id, studentId: req.user.id });
   if (!submission) return res.status(400).json({ message: 'Attempt not started' });
   if (submission.status === 'submitted') return res.status(400).json({ message: 'Already submitted' });
 
-  // Auto-grade MCQ now
+  // Auto-grade MCQ
   let score = 0;
   const mcqAnswers = req.body.mcqAnswers || [];
   for (const ans of mcqAnswers) {
     const q = exam.mcqQuestions?.[ans.questionIndex];
     if (!q) continue;
-    if (q.correctOptionIndex === ans.selectedOptionIndex) score += q.marks;
+    if (q.correctOptionIndex === ans.selectedOptionIndex) score += q.marks || 0;
   }
 
-  submission.mcqAnswers = mcqAnswers;
-  submission.codingAnswers = req.body.codingAnswers || [];
-  submission.totalScore = score;
-  submission.status = 'submitted';
-  submission.submittedAt = new Date();
+  // Update submission using Firestore method
+  const updated = await Submission.updateById(submission._id || submission.id, {
+    answers: [...mcqAnswers, ...(req.body.codingAnswers || [])],
+    score: score,
+    status: 'submitted',
+    submittedAt: new Date()
+  });
 
-  await submission.save();
-
-  res.json({ submission: submission.toObject() });
+  res.json({ submission: updated });
 });
 
 export const getMySubmission = asyncHandler(async (req, res) => {
-  const submission = await Submission.findOne({ examId: req.params.id, studentId: req.user.id })
-    .populate('examId', 'title type totalMarks')
-    .lean();
+  const submission = await Submission.findOne({ 
+    examId: req.params.id, 
+    studentId: req.user.id 
+  });
   if (!submission) return res.status(404).json({ message: 'Submission not found' });
+  
+  // Manually populate exam info
+  if (submission.examId) {
+    const exam = await Exam.findById(submission.examId);
+    if (exam) {
+      submission.exam = { 
+        id: exam.id || exam._id, 
+        title: exam.title, 
+        type: exam.type, 
+        totalMarks: exam.totalMarks 
+      };
+    }
+  }
+  
   res.json({ submission });
 });

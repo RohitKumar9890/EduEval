@@ -17,6 +17,7 @@ export class Submission {
       startedAt: submissionData.startedAt || Timestamp.now(),
       submittedAt: submissionData.submittedAt || null,
       status: submissionData.status || 'in_progress', // in_progress, submitted, graded
+      feedback: submissionData.feedback || null,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
     };

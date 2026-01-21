@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
-import { register, login, refresh, me } from '../controllers/authController.js';
+import { register, login, refresh, me, requestPasswordReset, resetPassword } from '../controllers/authController.js';
 import { requireAuth } from '../middleware/authMiddleware.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { authLimiter } from '../middleware/rateLimitMiddleware.js';
@@ -29,5 +29,23 @@ router.post(
 router.post('/refresh', [body('refreshToken').isString().isLength({ min: 10 })], asyncHandler(refresh));
 
 router.get('/me', requireAuth, asyncHandler(me));
+
+// Password reset routes
+router.post(
+  '/request-password-reset',
+  authLimiter,
+  [body('email').isEmail()],
+  asyncHandler(requestPasswordReset)
+);
+
+router.post(
+  '/reset-password',
+  authLimiter,
+  [
+    body('token').isString().isLength({ min: 10 }),
+    body('newPassword').isString().isLength({ min: 6 }),
+  ],
+  asyncHandler(resetPassword)
+);
 
 export default router;

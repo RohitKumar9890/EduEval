@@ -86,6 +86,12 @@ export default function Layout({ children }) {
                       <a href="/student/exams" className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900">
                         Exams
                       </a>
+                      <a href="/student/materials" className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900">
+                        Materials
+                      </a>
+                      <a href="/student/announcements" className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900">
+                        Announcements
+                      </a>
                       <a href="/student/progress" className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900">
                         Progress
                       </a>

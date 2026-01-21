@@ -17,13 +17,12 @@ export class User {
       _id: userRef.id,
       name: userData.name,
       email: userData.email.toLowerCase(),
-      passwordHash: userData.passwordHash || null, // Optional for OAuth users
+      passwordHash: userData.passwordHash || null,
       role: userData.role,
       isActive: userData.isActive !== undefined ? userData.isActive : true,
-      // OAuth fields
-      oauthProvider: userData.oauthProvider || null, // 'google', 'microsoft', null
-      oauthId: userData.oauthId || null, // Provider's user ID
-      avatar: userData.avatar || null, // Profile picture URL
+      // Password reset fields
+      resetPasswordToken: userData.resetPasswordToken || null,
+      resetPasswordExpires: userData.resetPasswordExpires || null,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
     };
@@ -45,11 +44,6 @@ export class User {
       const doc = await usersRef.doc(query._id).get();
       if (!doc.exists) return null;
       return { id: doc.id, _id: doc.id, ...doc.data() };
-    }
-    if (query.oauthProvider && query.oauthId) {
-      queryRef = queryRef
-        .where('oauthProvider', '==', query.oauthProvider)
-        .where('oauthId', '==', query.oauthId);
     }
     
     const snapshot = await queryRef.limit(1).get();

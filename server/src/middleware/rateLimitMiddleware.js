@@ -6,8 +6,6 @@ export const apiLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {
-    // eslint-disable-next-line no-console
-    console.log(`Rate limit exceeded for IP: ${req.ip}, Path: ${req.path}`);
     res.status(429).json({
       message: 'Too many requests. Please wait a moment and try again.',
     });
@@ -22,8 +20,6 @@ export const authLimiter = rateLimit({
   legacyHeaders: false,
   skipSuccessfulRequests: true, // Don't count successful logins
   handler: (req, res) => {
-    // eslint-disable-next-line no-console
-    console.log(`Auth rate limit exceeded for IP: ${req.ip}`);
     res.status(429).json({
       message: 'Too many login attempts. Please wait 15 minutes and try again.',
     });

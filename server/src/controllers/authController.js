@@ -2,6 +2,8 @@ import { validationResult } from 'express-validator';
 import { User, USER_ROLES } from '../models/User.js';
 import { hashPassword, verifyPassword } from '../utils/password.js';
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../utils/jwt.js';
+import crypto from 'crypto';
+import { sendEmail } from '../utils/emailService.js';
 
 const toAuthResponse = (user) => {
   const payload = { sub: user._id.toString(), role: user.role };
@@ -11,7 +13,6 @@ const toAuthResponse = (user) => {
       name: user.name,
       email: user.email,
       role: user.role,
-      avatar: user.avatar || null,
     },
     accessToken: signAccessToken(payload),
     refreshToken: signRefreshToken(payload),
@@ -38,14 +39,20 @@ export const register = async (req, res) => {
   const passwordHash = await hashPassword(password);
   const user = await User.create({ name, email, passwordHash, role });
 
+  // Send welcome email
+  sendEmail(user.email, 'welcomeEmail', {
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    loginUrl: `${process.env.CLIENT_URL || 'http://localhost:3000'}/auth/login`,
+  }).catch(err => console.error('Welcome email error:', err));
+
   return res.status(201).json(toAuthResponse(user));
 };
 
 export const login = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    // eslint-disable-next-line no-console
-    console.log('Login validation failed:', errors.array());
     return res.status(400).json({ errors: errors.array() });
   }
 
@@ -53,36 +60,18 @@ export const login = async (req, res) => {
 
   const user = await User.findOne({ email: email.toLowerCase() });
   if (!user || !user.isActive) {
-    // eslint-disable-next-line no-console
-    console.log(`Login failed: User not found or inactive - ${email}`);
     return res.status(401).json({ message: 'Invalid credentials' });
   }
 
-  // Check if user registered via OAuth (no password)
-  if (!user.passwordHash && user.oauthProvider) {
-    // eslint-disable-next-line no-console
-    console.log(`Login failed: OAuth user attempting password login - ${email}`);
-    return res.status(401).json({ 
-      message: `This account uses ${user.oauthProvider} login. Please use the "Sign in with ${user.oauthProvider}" button.`,
-      oauthProvider: user.oauthProvider 
-    });
-  }
-
   if (!user.passwordHash) {
-    // eslint-disable-next-line no-console
-    console.log(`Login failed: No password set for user - ${email}`);
     return res.status(401).json({ message: 'Invalid credentials' });
   }
 
   const ok = await verifyPassword(password, user.passwordHash);
   if (!ok) {
-    // eslint-disable-next-line no-console
-    console.log(`Login failed: Invalid password for - ${email}`);
     return res.status(401).json({ message: 'Invalid credentials' });
   }
 
-  // eslint-disable-next-line no-console
-  console.log(`Login successful: ${user.email} (${user.role})`);
   return res.json(toAuthResponse(user));
 };
 
@@ -106,4 +95,74 @@ export const refresh = async (req, res) => {
 
 export const me = async (req, res) => {
   return res.json({ user: req.user });
+};
+
+// Password reset functionality
+export const requestPasswordReset = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const { email } = req.body;
+  const user = await User.findOne({ email: email.toLowerCase() });
+
+  // Always return success to prevent email enumeration
+  if (!user) {
+    return res.json({ message: 'If an account exists with that email, a password reset link has been sent.' });
+  }
+
+  // Generate reset token
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  const resetTokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
+  const resetTokenExpiry = Date.now() + 3600000; // 1 hour
+
+  // Save reset token to user
+  await User.updateById(user._id, {
+    resetPasswordToken: resetTokenHash,
+    resetPasswordExpires: resetTokenExpiry,
+  });
+
+  // Send reset email
+  const resetUrl = `${process.env.CLIENT_URL || 'http://localhost:3000'}/auth/reset-password?token=${resetToken}`;
+  
+  sendEmail(user.email, 'passwordReset', {
+    name: user.name,
+    resetUrl: resetUrl,
+  }).catch(err => console.error('Password reset email error:', err));
+
+  return res.json({ message: 'If an account exists with that email, a password reset link has been sent.' });
+};
+
+export const resetPassword = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const { token, newPassword } = req.body;
+
+  // Hash the token to compare with stored hash
+  const resetTokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+  // Find user with valid reset token
+  const users = await User.find({});
+  const user = users.find(u => 
+    u.resetPasswordToken === resetTokenHash && 
+    u.resetPasswordExpires > Date.now()
+  );
+
+  if (!user) {
+    return res.status(400).json({ message: 'Invalid or expired reset token' });
+  }
+
+  // Update password and clear reset token
+  const passwordHash = await hashPassword(newPassword);
+  await User.updateById(user._id, {
+    passwordHash,
+    resetPasswordToken: null,
+    resetPasswordExpires: null,
+  });
+
+  return res.json({ message: 'Password reset successfully. You can now login with your new password.' });
 };
