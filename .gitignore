@@ -54,3 +54,6 @@ uploads/*
 # Docker
 *.env.docker
 docker-compose.override.yml
+
+# Temporary deployment files
+tmp_rovodev_*
