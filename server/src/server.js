@@ -2,12 +2,18 @@ import dotenv from 'dotenv';
 import http from 'http';
 import app from './app.js';
 import { connectDB } from './config/db.js';
+import { checkRequiredEnvVars } from './utils/checkEnvVars.js';
 
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
+  // Check environment variables first
+  // eslint-disable-next-line no-console
+  console.log('\n🔍 Checking environment variables...');
+  checkRequiredEnvVars();
+
   await connectDB();
 
   const server = http.createServer(app);
