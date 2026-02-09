@@ -49,6 +49,11 @@ export class Exam {
       enrolledStudents: [], // Track which students joined
       mcqQuestions: examData.mcqQuestions || [],
       codingQuestions: examData.codingQuestions || [],
+      instructions: examData.instructions || '',
+      passingMarks: examData.passingMarks || null,
+      randomizeQuestions: examData.randomizeQuestions !== undefined ? examData.randomizeQuestions : false,
+      showResultsImmediately: examData.showResultsImmediately !== undefined ? examData.showResultsImmediately : false,
+      allowReview: examData.allowReview !== undefined ? examData.allowReview : true,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
     };
