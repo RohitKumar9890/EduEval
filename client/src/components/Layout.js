@@ -74,6 +74,9 @@ export default function Layout({ children }) {
                   )}
                   {user.role === 'faculty' && (
                     <>
+                      <a href="/faculty/dashboard" className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900">
+                        Dashboard
+                      </a>
                       <a href="/faculty/exams" className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900">
                         Exams
                       </a>
@@ -87,6 +90,9 @@ export default function Layout({ children }) {
                   )}
                   {user.role === 'student' && (
                     <>
+                      <a href="/student/dashboard" className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900">
+                        Dashboard
+                      </a>
                       <a href="/student/exams" className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900">
                         Exams
                       </a>

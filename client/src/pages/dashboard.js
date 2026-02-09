@@ -62,7 +62,7 @@ export default function Dashboard() {
 
   // Role-specific dashboards
   if (me.role === 'faculty') {
-    router.push('/faculty/exams');
+    router.push('/faculty/dashboard');
     return (
       <Layout>
         <Card title="Dashboard">
@@ -75,7 +75,7 @@ export default function Dashboard() {
   }
 
   if (me.role === 'student') {
-    router.push('/student/exams');
+    router.push('/student/dashboard');
     return (
       <Layout>
         <Card title="Dashboard">
