@@ -97,6 +97,13 @@ export const initializeFirebase = () => {
       config.databaseURL = process.env.FIREBASE_DATABASE_URL;
     }
 
+    // Add storage bucket if provided
+    if (process.env.FIREBASE_STORAGE_BUCKET) {
+      config.storageBucket = process.env.FIREBASE_STORAGE_BUCKET;
+    } else if (process.env.FIREBASE_PROJECT_ID) {
+      config.storageBucket = `${process.env.FIREBASE_PROJECT_ID}.appspot.com`;
+    }
+
     admin.initializeApp(config);
 
     db = admin.firestore();

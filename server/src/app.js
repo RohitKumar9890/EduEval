@@ -15,6 +15,7 @@ import adminRoutes from './routes/admin/index.js';
 import facultyRoutes from './routes/faculty/index.js';
 import studentRoutes from './routes/student/index.js';
 import privacyRoutes from './routes/privacyRoutes.js';
+import reportRoutes from './routes/reportRoutes.js';
 import { requireAuth, requireRole } from './middleware/authMiddleware.js';
 import codeRoutes from './routes/codeRoutes.js';
 
@@ -65,6 +66,7 @@ app.use(simpleCsrfProtection);
 app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/privacy', privacyRoutes);
+app.use('/api/reports', reportRoutes);
 app.use('/api/admin', requireAuth, requireRole('admin'), adminRoutes);
 app.use('/api/faculty', requireAuth, requireRole('faculty'), facultyRoutes);
 app.use('/api/student', requireAuth, requireRole('student'), studentRoutes);

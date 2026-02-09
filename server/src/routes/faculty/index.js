@@ -6,6 +6,7 @@ import submissionRoutes from './submissionRoutes.js';
 import questionBankRoutes from './questionBankRoutes.js';
 import examTemplateRoutes from './examTemplateRoutes.js';
 import analyticsRoutes from './analyticsRoutes.js';
+import questionRoutes from './questionRoutes.js';
 import { getMySubjects } from '../../controllers/faculty/subjectController.js';
 
 const router = Router();
@@ -18,5 +19,6 @@ router.use('/materials', materialRoutes);
 router.use('/announcements', announcementRoutes);
 router.use('/submissions', submissionRoutes);
 router.use('/question-bank', questionBankRoutes);
+router.use('/questions', questionRoutes);
 
 export default router;
