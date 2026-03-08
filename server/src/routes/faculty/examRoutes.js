@@ -23,8 +23,16 @@ router.post(
     body('subjectId').isString().isLength({ min: 6 }),
     body('durationMinutes').isInt({ min: 1 }),
     body('totalMarks').isInt({ min: 0 }),
+    body('startsAt').optional().isISO8601(),
+    body('endsAt').optional().isISO8601(),
     body('mcqQuestions').optional().isArray(),
     body('codingQuestions').optional().isArray(),
+    body('instructions').optional().isString(),
+    body('passingMarks').optional().isInt({ min: 0 }),
+    body('randomizeQuestions').optional().isBoolean(),
+    body('showResultsImmediately').optional().isBoolean(),
+    body('allowReview').optional().isBoolean(),
+    body('isPublished').optional().isBoolean(),
   ],
   createExam
 );
@@ -33,7 +41,24 @@ router.get('/:id', [param('id').isString().isLength({ min: 6 })], getExam);
 
 router.patch(
   '/:id',
-  [param('id').isString()],
+  [
+    param('id').isString().isLength({ min: 6 }),
+    body('title').optional().isString().isLength({ min: 1 }),
+    body('type').optional().isIn(['mcq', 'quiz', 'coding']),
+    body('subjectId').optional().isString().isLength({ min: 6 }),
+    body('durationMinutes').optional().isInt({ min: 1 }),
+    body('totalMarks').optional().isInt({ min: 0 }),
+    body('startsAt').optional().isISO8601(),
+    body('endsAt').optional().isISO8601(),
+    body('mcqQuestions').optional().isArray(),
+    body('codingQuestions').optional().isArray(),
+    body('instructions').optional().isString(),
+    body('passingMarks').optional().isInt({ min: 0 }),
+    body('randomizeQuestions').optional().isBoolean(),
+    body('showResultsImmediately').optional().isBoolean(),
+    body('allowReview').optional().isBoolean(),
+    body('isPublished').optional().isBoolean(),
+  ],
   updateExam
 );
 

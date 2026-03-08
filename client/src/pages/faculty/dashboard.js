@@ -336,6 +336,14 @@ export default function FacultyDashboard() {
     return 'Active';
   };
 
+  const getQuestionCount = (exam) => {
+    if (typeof exam.totalQuestions === 'number') return exam.totalQuestions;
+    const mcqCount = Array.isArray(exam.mcqQuestions) ? exam.mcqQuestions.length : 0;
+    const codingCount = Array.isArray(exam.codingQuestions) ? exam.codingQuestions.length : 0;
+    const legacyCount = Array.isArray(exam.questions) ? exam.questions.length : 0;
+    return mcqCount + codingCount || legacyCount;
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -481,7 +489,7 @@ export default function FacultyDashboard() {
                       <div className="flex-1">
                         <div className="font-medium text-gray-900">{exam.title}</div>
                         <div className="text-sm text-gray-600">
-                          {exam.type.toUpperCase()} • {exam.durationMinutes} min • {exam.totalMarks} marks
+                          {exam.type.toUpperCase()} • {getQuestionCount(exam)} questions • {exam.durationMinutes} min • {exam.totalMarks} marks
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">

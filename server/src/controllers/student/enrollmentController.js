@@ -1,6 +1,12 @@
 import { Exam } from '../../models/Exam.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 
+const normalizeExamCode = (value) => {
+  const raw = String(value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12);
+  if (raw.length !== 12) return null;
+  return `${raw.slice(0, 4)}-${raw.slice(4, 8)}-${raw.slice(8, 12)}`;
+};
+
 export const joinExamByCode = asyncHandler(async (req, res) => {
   const { examCode } = req.body;
   
@@ -8,8 +14,13 @@ export const joinExamByCode = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: 'Exam code is required' });
   }
 
+  const normalizedExamCode = normalizeExamCode(examCode);
+  if (!normalizedExamCode) {
+    return res.status(400).json({ message: 'Invalid exam code format. Use a 12-character code.' });
+  }
+
   // Find exam by code
-  const exam = await Exam.findOne({ examCode: examCode.toUpperCase() });
+  const exam = await Exam.findOne({ examCode: normalizedExamCode });
   
   if (!exam) {
     return res.status(404).json({ message: 'Invalid exam code' });

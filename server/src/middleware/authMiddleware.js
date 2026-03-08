@@ -1,4 +1,4 @@
-import { verifyAccessToken } from '../utils/jwt.js';
+import { generateTokenFingerprint, verifyAccessToken } from '../utils/jwt.js';
 import { User } from '../models/User.js';
 
 export const requireAuth = async (req, res, next) => {
@@ -10,7 +10,8 @@ export const requireAuth = async (req, res, next) => {
       return res.status(401).json({ message: 'Missing Authorization token' });
     }
 
-    const decoded = verifyAccessToken(token);
+    const fingerprint = generateTokenFingerprint(req.headers['user-agent'], req.ip);
+    const decoded = verifyAccessToken(token, fingerprint);
     const user = await User.findById(decoded.sub);
 
     if (!user || user.isActive === false) {

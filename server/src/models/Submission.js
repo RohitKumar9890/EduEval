@@ -44,6 +44,9 @@ export class Submission {
     if (query.studentId) {
       queryRef = queryRef.where('studentId', '==', query.studentId);
     }
+    if (query.status) {
+      queryRef = queryRef.where('status', '==', query.status);
+    }
     
     const snapshot = await queryRef.limit(1).get();
     

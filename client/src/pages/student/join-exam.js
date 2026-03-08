@@ -22,13 +22,20 @@ export default function JoinExam() {
     setAccessToken(token);
   }, [router]);
 
+  const normalizeExamCode = (value) => {
+    const raw = (value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12);
+    return raw.match(/.{1,4}/g)?.join('-') || '';
+  };
+
+  const isValidExamCode = examCode.replace(/-/g, '').length === 12;
+
   const handleJoinExam = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
-      const res = await api.post('/student/join-exam', { examCode: examCode.toUpperCase() });
+      const res = await api.post('/student/join-exam', { examCode: normalizeExamCode(examCode) });
       alert(`Successfully joined: ${res.data.exam.title}!`);
       router.push('/student/exams');
     } catch (e) {
@@ -50,11 +57,11 @@ export default function JoinExam() {
             <Input
               label="Exam Code"
               type="text"
-              placeholder="e.g., ABC123"
+              placeholder="e.g., ABCD-EFGH-JKLM"
               value={examCode}
-              onChange={(e) => setExamCode(e.target.value.toUpperCase())}
+              onChange={(e) => setExamCode(normalizeExamCode(e.target.value))}
               required
-              maxLength={6}
+              maxLength={14}
               className="text-center text-2xl font-mono font-bold tracking-widest"
             />
 
@@ -65,7 +72,7 @@ export default function JoinExam() {
             )}
 
             <div className="flex space-x-2">
-              <Button type="submit" disabled={loading || examCode.length !== 6} className="flex-1">
+              <Button type="submit" disabled={loading || !isValidExamCode} className="flex-1">
                 {loading ? 'Joining...' : 'Join Exam'}
               </Button>
               <Button
@@ -81,7 +88,7 @@ export default function JoinExam() {
           <div className="mt-6 p-4 bg-blue-50 rounded-lg">
             <h3 className="text-sm font-semibold text-blue-900 mb-2">How it works:</h3>
             <ul className="text-sm text-blue-800 space-y-1">
-              <li>1. Get the 6-character code from your instructor</li>
+              <li>1. Get the exam code from your instructor</li>
               <li>2. Enter the code above</li>
               <li>3. Click "Join Exam"</li>
               <li>4. The exam will appear in your exam list</li>

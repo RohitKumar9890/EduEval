@@ -9,6 +9,17 @@ export const EXAM_TYPES = /** @type {const} */ ({
 const COLLECTION_NAME = 'exams';
 
 export class Exam {
+  static matchesQuery(exam, query = {}) {
+    if (!exam) return false;
+    if (query._id && exam._id !== query._id && exam.id !== query._id) return false;
+    if (query.examCode && (exam.examCode || '').toUpperCase() !== query.examCode.toUpperCase()) return false;
+    if (query.subjectId && exam.subjectId !== query.subjectId) return false;
+    if (query.type && exam.type !== query.type) return false;
+    if (query.createdBy && exam.createdBy !== query.createdBy) return false;
+    if (query.isPublished !== undefined && exam.isPublished !== query.isPublished) return false;
+    return true;
+  }
+
   static generateExamCode() {
     // Generate a unique 12-character exam code (stronger security)
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Removed confusing chars
@@ -69,7 +80,8 @@ export class Exam {
     if (query._id) {
       const doc = await examsRef.doc(query._id).get();
       if (!doc.exists) return null;
-      return { id: doc.id, _id: doc.id, ...doc.data() };
+      const exam = { id: doc.id, _id: doc.id, ...doc.data() };
+      return this.matchesQuery(exam, query) ? exam : null;
     }
     
     let queryRef = examsRef;
@@ -82,6 +94,12 @@ export class Exam {
     }
     if (query.type) {
       queryRef = queryRef.where('type', '==', query.type);
+    }
+    if (query.createdBy) {
+      queryRef = queryRef.where('createdBy', '==', query.createdBy);
+    }
+    if (query.isPublished !== undefined) {
+      queryRef = queryRef.where('isPublished', '==', query.isPublished);
     }
     
     const snapshot = await queryRef.limit(1).get();

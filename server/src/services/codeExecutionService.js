@@ -1,4 +1,5 @@
 import Docker from 'dockerode';
+import { PassThrough } from 'stream';
 import { analyzeCode, sanitizeOutput } from '../utils/codeAnalysis.js';
 
 const timeoutMs = Number(process.env.CODE_EXECUTION_TIMEOUT || 5000); // Reduced from 10s to 5s
@@ -70,10 +71,18 @@ export const executeCodeDocker = async ({ language, code, stdin }) => {
   let stdout = '';
   let stderr = '';
 
-  stream.on('data', (chunk) => {
-    // docker multiplexed stream; for MVP treat as combined
+  const stdoutStream = new PassThrough();
+  const stderrStream = new PassThrough();
+
+  stdoutStream.on('data', (chunk) => {
     stdout += chunk.toString('utf8');
   });
+
+  stderrStream.on('data', (chunk) => {
+    stderr += chunk.toString('utf8');
+  });
+
+  docker.modem.demuxStream(stream, stdoutStream, stderrStream);
 
   if (stdin) {
     stream.write(stdin);
@@ -95,7 +104,6 @@ export const executeCodeDocker = async ({ language, code, stdin }) => {
   const sanitizedStdout = sanitizeOutput(stdout.trimEnd());
   const sanitizedStderr = sanitizeOutput(stderr.trimEnd());
 
-  // Best-effort: stderr not separated in MVP.
   return { stdout: sanitizedStdout, stderr: sanitizedStderr, exitCode };
 };
 

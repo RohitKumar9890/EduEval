@@ -7,7 +7,7 @@ import { Exam } from '../../models/Exam.js';
  * @route POST /api/student/exams/:examId/auto-save
  */
 export const autoSaveProgress = asyncHandler(async (req, res) => {
-  const { examId } = req.params;
+  const { id: examId } = req.params;
   const studentId = req.user.id;
   const { answers } = req.body;
   
@@ -55,7 +55,7 @@ export const autoSaveProgress = asyncHandler(async (req, res) => {
  * @route GET /api/student/exams/:examId/saved-progress
  */
 export const getSavedProgress = asyncHandler(async (req, res) => {
-  const { examId } = req.params;
+  const { id: examId } = req.params;
   const studentId = req.user.id;
   
   const submission = await Submission.findOne({ 

@@ -96,6 +96,14 @@ export default function FacultyExams() {
     const subject = subjects.find(s => s.id === subjectId);
     return subject ? subject.name : 'Unknown';
   };
+  
+  const getQuestionCount = (exam) => {
+    if (typeof exam.totalQuestions === 'number') return exam.totalQuestions;
+    const mcqCount = Array.isArray(exam.mcqQuestions) ? exam.mcqQuestions.length : 0;
+    const codingCount = Array.isArray(exam.codingQuestions) ? exam.codingQuestions.length : 0;
+    const legacyCount = Array.isArray(exam.questions) ? exam.questions.length : 0;
+    return mcqCount + codingCount || legacyCount;
+  };
 
   if (loading) return <Layout><div className="text-center py-8">Loading...</div></Layout>;
 
@@ -112,7 +120,7 @@ export default function FacultyExams() {
         {exams.length === 0 ? (
           <p className="text-gray-500 text-center py-8">No exams found</p>
         ) : (
-          <Table headers={['Title', 'Code', 'Type', 'Subject', 'Duration', 'Marks', 'Status', 'Actions']}>
+          <Table headers={['Title', 'Code', 'Type', 'Subject', 'Questions', 'Duration', 'Marks', 'Status', 'Actions']}>
             {exams.map((exam) => (
               <tr key={exam.id}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{exam.title}</td>
@@ -142,6 +150,9 @@ export default function FacultyExams() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {getSubjectName(exam.subjectId)}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {getQuestionCount(exam)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{exam.durationMinutes} min</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{exam.totalMarks}</td>
