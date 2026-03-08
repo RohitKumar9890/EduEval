@@ -73,7 +73,7 @@ export default function FacultyDashboard() {
       
       for (const exam of exams) {
         try {
-          const subRes = await api.get(`/faculty/submissions/${exam.id}`);
+          const subRes = await api.get(`/faculty/submissions/exam/${exam.id}`);
           const examSubmissions = subRes.data.submissions || [];
           allSubmissions = [...allSubmissions, ...examSubmissions.map(s => ({ ...s, examTitle: exam.title }))];
           pendingCount += examSubmissions.filter(s => s.status === 'submitted' && !s.score).length;
@@ -483,7 +483,7 @@ export default function FacultyDashboard() {
                   return (
                     <div 
                       key={exam.id} 
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
                       onClick={() => router.push(`/faculty/exams/${exam.id}`)}
                     >
                       <div className="flex-1">
@@ -492,7 +492,7 @@ export default function FacultyDashboard() {
                           {exam.type.toUpperCase()} • {getQuestionCount(exam)} questions • {exam.durationMinutes} min • {exam.totalMarks} marks
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
                           exam.isPublished ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                         }`}>
@@ -531,7 +531,7 @@ export default function FacultyDashboard() {
                 {recentSubmissions.map((submission) => (
                   <div 
                     key={submission.id} 
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
                     onClick={() => router.push(`/faculty/submissions/${submission.id}`)}
                   >
                     <div className="flex-1">
@@ -544,7 +544,7 @@ export default function FacultyDashboard() {
                         }
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="text-left sm:text-right">
                       {submission.status === 'submitted' && submission.score !== undefined ? (
                         <div className="text-lg font-bold text-green-600">
                           {submission.score}/{submission.maxScore}

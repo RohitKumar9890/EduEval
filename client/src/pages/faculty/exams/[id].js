@@ -81,12 +81,26 @@ export default function ExamDetail() {
 
   const handleAddMCQ = async (e) => {
     e.preventDefault();
+
+    const cleanedOptions = (mcqForm.options || []).map(opt => opt.trim()).filter(Boolean);
+    if (cleanedOptions.length < 2) {
+      toast.error('Please provide at least 2 options');
+      return;
+    }
+    if (mcqForm.correctOptionIndex >= cleanedOptions.length) {
+      toast.error('Select a valid correct option');
+      return;
+    }
     
     const updatedMCQs = [...(exam.mcqQuestions || [])];
+    const normalizedQuestion = {
+      ...mcqForm,
+      options: cleanedOptions,
+    };
     if (editingIndex !== null) {
-      updatedMCQs[editingIndex] = mcqForm;
+      updatedMCQs[editingIndex] = normalizedQuestion;
     } else {
-      updatedMCQs.push(mcqForm);
+      updatedMCQs.push(normalizedQuestion);
     }
 
     try {
@@ -171,9 +185,35 @@ export default function ExamDetail() {
   };
 
   const handleEditMCQ = (index) => {
-    setMcqForm(exam.mcqQuestions[index]);
+    const question = exam.mcqQuestions[index];
+    setMcqForm({
+      ...question,
+      options: Array.isArray(question.options) ? question.options : ['', '', '', ''],
+      correctOptionIndex: question.correctOptionIndex || 0
+    });
     setEditingIndex(index);
     setShowMCQModal(true);
+  };
+
+  const addMcqOption = () => {
+    setMcqForm(prev => ({
+      ...prev,
+      options: [...(prev.options || []), '']
+    }));
+  };
+
+  const removeMcqOption = (index) => {
+    setMcqForm(prev => {
+      const nextOptions = (prev.options || []).filter((_, i) => i !== index);
+      const nextCorrect = prev.correctOptionIndex >= nextOptions.length
+        ? Math.max(0, nextOptions.length - 1)
+        : prev.correctOptionIndex;
+      return {
+        ...prev,
+        options: nextOptions.length > 0 ? nextOptions : [''],
+        correctOptionIndex: nextCorrect
+      };
+    });
   };
 
   const handleEditCoding = (index) => {
@@ -238,7 +278,7 @@ export default function ExamDetail() {
       <div className="space-y-6">
         {/* Header */}
         <Card>
-          <div className="flex justify-between items-start">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">{exam.title}</h1>
               <div className="mt-2 space-y-1 text-sm text-gray-600">
@@ -255,7 +295,7 @@ export default function ExamDetail() {
                 </p>
               </div>
             </div>
-            <div className="space-x-2">
+            <div className="flex flex-wrap gap-2">
               <Button
                 onClick={handlePublishToggle}
                 variant={exam.isPublished ? 'secondary' : 'primary'}
@@ -275,7 +315,7 @@ export default function ExamDetail() {
         {/* Tabs */}
         <Card>
           <div className="border-b border-gray-200 mb-4">
-            <nav className="-mb-px flex space-x-8">
+            <nav className="-mb-px flex gap-4 sm:gap-8 overflow-x-auto">
               {['details', 'mcq', 'coding', 'submissions'].map((tab) => (
                 <button
                   key={tab}
@@ -301,7 +341,7 @@ export default function ExamDetail() {
           {activeTab === 'details' && (
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Exam Details</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="p-4 bg-blue-50 rounded-lg">
                   <p className="text-2xl font-bold text-blue-600">{exam.mcqQuestions?.length || 0}</p>
                   <p className="text-sm text-gray-600">MCQ Questions</p>
@@ -354,7 +394,7 @@ export default function ExamDetail() {
                             Marks: {q.marks} | Difficulty: {q.difficulty}
                           </p>
                         </div>
-                        <div className="space-x-2">
+                        <div className="flex flex-wrap gap-2">
                           <Button onClick={() => handleEditMCQ(idx)} className="text-xs">Edit</Button>
                           <Button onClick={() => handleDeleteMCQ(idx)} variant="danger" className="text-xs">Delete</Button>
                         </div>
@@ -396,7 +436,7 @@ export default function ExamDetail() {
                             Language: {q.language} | Marks: {q.marks} | Difficulty: {q.difficulty}
                           </p>
                         </div>
-                        <div className="space-x-2">
+                        <div className="flex flex-wrap gap-2">
                           <Button onClick={() => handleEditCoding(idx)} className="text-xs">Edit</Button>
                           <Button onClick={() => handleDeleteCoding(idx)} variant="danger" className="text-xs">Delete</Button>
                         </div>
@@ -458,21 +498,37 @@ export default function ExamDetail() {
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Options</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-sm font-medium text-gray-700">Options</label>
+              <Button type="button" variant="secondary" onClick={addMcqOption} className="text-xs">
+                + Add Option
+              </Button>
+            </div>
             {mcqForm.options.map((opt, i) => (
-              <Input
-                key={i}
-                type="text"
-                placeholder={`Option ${String.fromCharCode(65 + i)}`}
-                value={opt}
-                onChange={(e) => {
-                  const newOpts = [...mcqForm.options];
-                  newOpts[i] = e.target.value;
-                  setMcqForm({ ...mcqForm, options: newOpts });
-                }}
-                required
-                className="mb-2"
-              />
+              <div key={i} className="flex items-end gap-2">
+                <Input
+                  type="text"
+                  placeholder={`Option ${String.fromCharCode(65 + i)}`}
+                  value={opt}
+                  onChange={(e) => {
+                    const newOpts = [...mcqForm.options];
+                    newOpts[i] = e.target.value;
+                    setMcqForm({ ...mcqForm, options: newOpts });
+                  }}
+                  required
+                  className="mb-2"
+                />
+                {mcqForm.options.length > 2 && (
+                  <Button
+                    type="button"
+                    variant="danger"
+                    onClick={() => removeMcqOption(i)}
+                    className="mb-4 text-xs"
+                  >
+                    Remove
+                  </Button>
+                )}
+              </div>
             ))}
           </div>
 
@@ -486,7 +542,7 @@ export default function ExamDetail() {
             ))}
           </Select>
 
-          <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
             <Input
               label="Marks"
               type="number"
@@ -506,7 +562,7 @@ export default function ExamDetail() {
             </Select>
           </div>
 
-          <div className="flex space-x-2 mt-6">
+          <div className="flex flex-wrap gap-2 mt-6">
             <Button type="submit">{editingIndex !== null ? 'Update' : 'Add'} Question</Button>
             <Button type="button" variant="secondary" onClick={() => { setShowMCQModal(false); setEditingIndex(null); }}>
               Cancel
@@ -550,7 +606,7 @@ export default function ExamDetail() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label="Marks"
               type="number"
@@ -616,7 +672,7 @@ export default function ExamDetail() {
             </div>
           </div>
 
-          <div className="flex space-x-2 mt-6">
+          <div className="flex flex-wrap gap-2 mt-6">
             <Button type="submit">{editingIndex !== null ? 'Update' : 'Add'} Question</Button>
             <Button type="button" variant="secondary" onClick={() => { setShowCodingModal(false); setEditingIndex(null); }}>
               Cancel

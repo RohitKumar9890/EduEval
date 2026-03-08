@@ -77,7 +77,7 @@ export default function StudentExams() {
               
               return (
                 <div key={exam.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                  <div className="flex justify-between items-start mb-2">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
                     <h3 className="text-lg font-semibold text-gray-900">{exam.title}</h3>
                     <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
                       status === 'Active' ? 'bg-green-100 text-green-800' :

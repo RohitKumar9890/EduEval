@@ -181,15 +181,15 @@ export default function TakeExam() {
       <div className="max-w-4xl mx-auto">
         {/* Exam Header */}
         <Card>
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{exam.title}</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{exam.title}</h1>
               <p className="text-sm text-gray-600">
                 Question {currentQuestionIndex + 1} of {totalQuestions}
               </p>
             </div>
             {timeRemaining !== null && (
-              <div className={`text-3xl font-bold ${getTimerColor()}`}>
+              <div className={`text-2xl sm:text-3xl font-bold ${getTimerColor()}`}>
                 ⏱️ {formatTime(timeRemaining)}
               </div>
             )}
@@ -285,7 +285,7 @@ export default function TakeExam() {
           </div>
 
           {/* Navigation Buttons */}
-          <div className="flex justify-between items-center pt-4 border-t">
+          <div className="flex flex-wrap justify-between items-center gap-2 pt-4 border-t">
             <Button
               variant="secondary"
               onClick={() => setCurrentQuestionIndex(Math.max(0, currentQuestionIndex - 1))}
@@ -314,7 +314,7 @@ export default function TakeExam() {
 
         {/* Question Navigator */}
         <Card className="mt-4" title="Question Navigator">
-          <div className="grid grid-cols-10 gap-2">
+          <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2">
             {Array.from({ length: totalQuestions }).map((_, idx) => {
               const isMCQQuestion = idx < (exam.mcqQuestions?.length || 0);
               const isAnswered = isMCQQuestion

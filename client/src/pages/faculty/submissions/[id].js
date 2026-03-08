@@ -89,7 +89,7 @@ export default function SubmissionDetail() {
       <div className="space-y-6">
         {/* Header */}
         <Card>
-          <div className="flex justify-between items-start">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">{submission.examTitle}</h1>
               <div className="mt-2 space-y-1 text-sm text-gray-600">
@@ -118,7 +118,7 @@ export default function SubmissionDetail() {
 
         {/* Score Card */}
         <Card title="Score">
-          <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             <div className="p-4 bg-blue-50 rounded-lg text-center">
               <p className="text-3xl font-bold text-blue-600">{submission.score}</p>
               <p className="text-sm text-gray-600">Score</p>
@@ -135,7 +135,7 @@ export default function SubmissionDetail() {
 
           <form onSubmit={handleGrade} className="border-t pt-4">
             <h3 className="text-lg font-semibold mb-4">Manual Grading</h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 label="Override Score"
                 type="number"

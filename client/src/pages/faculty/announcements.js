@@ -106,16 +106,16 @@ export default function FacultyAnnouncements() {
           <div className="space-y-4">
             {announcements.map((announcement) => (
               <div key={announcement.id} className="border rounded-lg p-4 hover:bg-gray-50">
-                <div className="flex justify-between items-start mb-2">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-2">
                   <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-1">
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
                       <h3 className="text-lg font-semibold text-gray-900">{announcement.title}</h3>
                       <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getPriorityColor(announcement.priority)}`}>
                         {announcement.priority}
                       </span>
                     </div>
                     <p className="text-sm text-gray-600 mb-2">{announcement.content}</p>
-                    <div className="flex items-center space-x-4 text-xs text-gray-500">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-gray-500">
                       <span>Subject: {getSubjectName(announcement.subjectId)}</span>
                       <span>
                         {announcement.createdAt 
@@ -128,7 +128,7 @@ export default function FacultyAnnouncements() {
                   <Button
                     variant="danger"
                     onClick={() => handleDeleteAnnouncement(announcement.id)}
-                    className="text-xs ml-4"
+                    className="text-xs sm:ml-4"
                   >
                     Delete
                   </Button>
@@ -182,7 +182,7 @@ export default function FacultyAnnouncements() {
               required
             />
           </div>
-          <div className="flex space-x-2 mt-4">
+          <div className="flex flex-wrap gap-2 mt-4">
             <Button type="submit">Create Announcement</Button>
             <Button type="button" variant="secondary" onClick={() => setShowModal(false)}>
               Cancel

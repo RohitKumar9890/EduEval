@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function GoalSetting({ goals, onSetGoal, onUpdateGoal }) {
+export default function GoalSetting({ goals, onSetGoal, onUpdateGoal: _onUpdateGoal, onDeleteGoal }) {
   const [showForm, setShowForm] = useState(false);
   const [newGoal, setNewGoal] = useState({
     type: 'score',
@@ -25,11 +25,11 @@ export default function GoalSetting({ goals, onSetGoal, onUpdateGoal }) {
 
   const getGoalIcon = (type) => {
     switch (type) {
-      case 'score': return '🎯';
-      case 'exams': return '📝';
-      case 'streak': return '🔥';
-      case 'average': return '📊';
-      default: return '⭐';
+      case 'score': return '??';
+      case 'exams': return '??';
+      case 'streak': return '??';
+      case 'average': return '??';
+      default: return '?';
     }
   };
 
@@ -55,18 +55,16 @@ export default function GoalSetting({ goals, onSetGoal, onUpdateGoal }) {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="text-lg font-semibold text-gray-900">Your Goals</h3>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+          className="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition"
         >
           {showForm ? 'Cancel' : '+ New Goal'}
         </button>
       </div>
 
-      {/* Goal Form */}
       {showForm && (
         <form onSubmit={handleSubmit} className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
           <div>
@@ -83,7 +81,7 @@ export default function GoalSetting({ goals, onSetGoal, onUpdateGoal }) {
               <option value="average">Average Score</option>
             </select>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Target Value</label>
             <input
@@ -126,7 +124,6 @@ export default function GoalSetting({ goals, onSetGoal, onUpdateGoal }) {
         </form>
       )}
 
-      {/* Active Goals */}
       {goals && goals.length > 0 ? (
         <div className="space-y-3">
           {goals.map((goal, index) => {
@@ -138,7 +135,7 @@ export default function GoalSetting({ goals, onSetGoal, onUpdateGoal }) {
 
             return (
               <div
-                key={index}
+                key={goal.id || index}
                 className={`border-2 rounded-lg p-4 ${
                   isCompleted
                     ? 'bg-green-50 border-green-300'
@@ -149,8 +146,8 @@ export default function GoalSetting({ goals, onSetGoal, onUpdateGoal }) {
                     : 'bg-white border-gray-200'
                 }`}
               >
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-start space-x-2">
+                <div className="flex items-start justify-between mb-2 gap-2">
+                  <div className="flex items-start space-x-2 min-w-0">
                     <span className="text-2xl">{getGoalIcon(goal.type)}</span>
                     <div>
                       <div className="font-semibold text-gray-900">
@@ -164,12 +161,22 @@ export default function GoalSetting({ goals, onSetGoal, onUpdateGoal }) {
                       )}
                     </div>
                   </div>
-                  {isCompleted && (
-                    <span className="text-2xl">✅</span>
-                  )}
+                  <div className="flex items-center gap-2 shrink-0">
+                    {isCompleted && (
+                      <span className="text-2xl">?</span>
+                    )}
+                    {onDeleteGoal && (
+                      <button
+                        type="button"
+                        onClick={() => onDeleteGoal(goal.id)}
+                        className="px-2 py-1 text-xs font-medium text-red-700 bg-red-50 border border-red-200 rounded hover:bg-red-100 transition"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
                 </div>
 
-                {/* Progress Bar */}
                 <div className="mb-2">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm text-gray-600">Progress</span>
@@ -191,22 +198,20 @@ export default function GoalSetting({ goals, onSetGoal, onUpdateGoal }) {
                   <div className="text-xs text-gray-500 mt-1">{progress.toFixed(0)}% complete</div>
                 </div>
 
-                {/* Deadline */}
                 {goal.deadline && (
                   <div className={`text-xs ${
                     deadlinePassed ? 'text-red-600' :
                     deadlineSoon ? 'text-orange-600' :
                     'text-gray-600'
                   }`}>
-                    ⏰ {deadlinePassed ? 'Deadline passed' : `Due: ${new Date(goal.deadline).toLocaleDateString()}`}
+                    ? {deadlinePassed ? 'Deadline passed' : `Due: ${new Date(goal.deadline).toLocaleDateString()}`}
                     {deadlineSoon && !deadlinePassed && ' (Soon!)'}
                   </div>
                 )}
 
-                {/* Motivational Message */}
                 {!isCompleted && progress > 0 && (
                   <div className="text-xs text-blue-600 mt-2">
-                    💪 Keep going! You're {(100 - progress).toFixed(0)}% away from your goal!
+                    ?? Keep going! You're {(100 - progress).toFixed(0)}% away from your goal!
                   </div>
                 )}
               </div>
@@ -215,15 +220,14 @@ export default function GoalSetting({ goals, onSetGoal, onUpdateGoal }) {
         </div>
       ) : (
         <div className="text-center py-8 text-gray-500">
-          <p className="text-4xl mb-2">🎯</p>
+          <p className="text-4xl mb-2">??</p>
           <p>No goals set yet.</p>
           <p className="text-sm mt-1">Set a goal to stay motivated and track your progress!</p>
         </div>
       )}
 
-      {/* Motivational Quote */}
       <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-3 text-sm text-purple-800">
-        💬 <em>"A goal without a plan is just a wish. Set your targets and crush them!"</em>
+        ?? <em>"A goal without a plan is just a wish. Set your targets and crush them!"</em>
       </div>
     </div>
   );

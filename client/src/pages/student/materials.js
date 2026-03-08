@@ -76,7 +76,7 @@ export default function StudentMaterials() {
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Subject</label>
             <select
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
               value={selectedSubject}
               onChange={(e) => setSelectedSubject(e.target.value)}
             >
@@ -132,7 +132,7 @@ export default function StudentMaterials() {
                   <p className="text-sm text-gray-600 mb-4 line-clamp-2">{material.description}</p>
                 )}
 
-                <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500 mb-3">
                   {material.fileSize && (
                     <span>{(material.fileSize / 1024 / 1024).toFixed(2)} MB</span>
                   )}

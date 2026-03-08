@@ -89,7 +89,7 @@ export default function StudentProgress() {
                 
                 return (
                   <div key={submission.id} className="border rounded-lg p-4 hover:bg-gray-50">
-                    <div className="flex justify-between items-start">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
                       <div className="flex-1">
                         <h3 className="text-lg font-semibold text-gray-900">
                           {submission.examTitle || 'Exam'}
@@ -120,12 +120,12 @@ export default function StudentProgress() {
                         </div>
                       </div>
                       {percentage >= 90 && (
-                        <div className="ml-4">
+                        <div className="ml-0 sm:ml-4">
                           <span className="text-4xl">🏆</span>
                         </div>
                       )}
                       {percentage >= 80 && percentage < 90 && (
-                        <div className="ml-4">
+                        <div className="ml-0 sm:ml-4">
                           <span className="text-4xl">⭐</span>
                         </div>
                       )}
@@ -144,11 +144,11 @@ export default function StudentProgress() {
               <p className="text-gray-500">Start taking exams to see your performance insights.</p>
             ) : (
               <>
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                <div className="flex items-center justify-between gap-2 p-3 bg-gray-50 rounded">
                   <span className="text-gray-700">Total Exams Completed</span>
                   <span className="font-semibold text-gray-900">{submissions.length}</span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                <div className="flex items-center justify-between gap-2 p-3 bg-gray-50 rounded">
                   <span className="text-gray-700">Highest Score</span>
                   <span className="font-semibold text-gray-900">
                     {submissions.length > 0
@@ -159,7 +159,7 @@ export default function StudentProgress() {
                     }
                   </span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                <div className="flex items-center justify-between gap-2 p-3 bg-gray-50 rounded">
                   <span className="text-gray-700">Lowest Score</span>
                   <span className="font-semibold text-gray-900">
                     {submissions.length > 0

@@ -125,7 +125,7 @@ export default function FacultyExams() {
               <tr key={exam.id}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{exam.title}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center gap-2">
                     <code className="px-2 py-1 bg-gray-100 text-sm font-mono font-bold text-blue-600 rounded">
                       {exam.examCode || 'N/A'}
                     </code>
@@ -163,7 +163,8 @@ export default function FacultyExams() {
                     {exam.isPublished ? 'Published' : 'Draft'}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                  <div className="flex flex-wrap gap-2">
                   <Button
                     variant="primary"
                     onClick={() => router.push(`/faculty/exams/${exam.id}`)}
@@ -185,6 +186,7 @@ export default function FacultyExams() {
                   >
                     Delete
                   </Button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -252,7 +254,7 @@ export default function FacultyExams() {
             value={formData.endsAt}
             onChange={(e) => setFormData({ ...formData, endsAt: e.target.value })}
           />
-          <div className="flex space-x-2 mt-4">
+          <div className="flex flex-wrap gap-2 mt-4">
             <Button type="submit">Create Exam</Button>
             <Button type="button" variant="secondary" onClick={() => setShowModal(false)}>
               Cancel

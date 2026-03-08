@@ -182,6 +182,12 @@ export default function StudentDashboard() {
     localStorage.setItem('studentGoals', JSON.stringify(updatedGoals));
   };
 
+  const handleDeleteGoal = (goalId) => {
+    const updatedGoals = goals.filter(g => g.id !== goalId);
+    setGoals(updatedGoals);
+    localStorage.setItem('studentGoals', JSON.stringify(updatedGoals));
+  };
+
 
   const calculateChartData = (exams, submissions) => {
     // Grade Progress over time
@@ -573,6 +579,7 @@ export default function StudentDashboard() {
             goals={goals} 
             onSetGoal={handleSetGoal} 
             onUpdateGoal={handleUpdateGoal} 
+            onDeleteGoal={handleDeleteGoal}
           />
         </Card>
 
@@ -626,18 +633,18 @@ export default function StudentDashboard() {
                 const submission = submissions.find(s => s.examId === exam.id);
                 
                 return (
-                  <div 
-                    key={exam.id} 
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-                    onClick={() => router.push(`/student/exams/${exam.id}`)}
-                  >
+                    <div 
+                      key={exam.id} 
+                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                      onClick={() => router.push(`/student/exams/${exam.id}`)}
+                    >
                     <div className="flex-1">
                       <div className="font-medium text-gray-900">{exam.title}</div>
                       <div className="text-sm text-gray-600">
                         {exam.type?.toUpperCase()} • {exam.durationMinutes} min • {exam.totalMarks} marks
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       {submission && submission.status === 'submitted' && (
                         <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
                           Completed

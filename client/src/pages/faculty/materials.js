@@ -143,7 +143,8 @@ export default function FacultyMaterials() {
                     View
                   </a>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                  <div className="flex flex-wrap gap-2">
                   <Button
                     variant="danger"
                     onClick={() => handleDeleteMaterial(material.id)}
@@ -151,6 +152,7 @@ export default function FacultyMaterials() {
                   >
                     Delete
                   </Button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -163,7 +165,7 @@ export default function FacultyMaterials() {
           {/* Upload Mode Toggle */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">Upload Method</label>
-            <div className="flex space-x-4">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
               <button
                 type="button"
                 onClick={() => setUploadMode('file')}
@@ -258,7 +260,7 @@ export default function FacultyMaterials() {
             </>
           )}
 
-          <div className="flex space-x-2 mt-4">
+          <div className="flex flex-wrap gap-2 mt-4">
             <Button type="submit" disabled={uploading}>
               {uploading ? 'Uploading...' : uploadMode === 'file' ? 'Upload File' : 'Create Material'}
             </Button>
