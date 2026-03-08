@@ -89,14 +89,8 @@ self.addEventListener('fetch', (event) => {
       // Not in cache, fetch from network
       return fetch(request)
         .then((response) => {
-          // Don't cache non-successful responses, non-GET requests, or unsupported schemes (like chrome-extension://)
-          if (
-            !response ||
-            response.status !== 200 ||
-            response.type === 'error' ||
-            request.method !== 'GET' ||
-            !(request.url.startsWith('http:') || request.url.startsWith('https:'))
-          ) {
+          // Don't cache non-successful responses
+          if (!response || response.status !== 200 || response.type === 'error') {
             return response;
           }
 
@@ -121,7 +115,7 @@ self.addEventListener('fetch', (event) => {
 // Background sync for exam submissions
 self.addEventListener('sync', (event) => {
   console.log('Service Worker: Background sync', event.tag);
-
+  
   if (event.tag === 'sync-exam-answers') {
     event.waitUntil(syncExamAnswers());
   }
@@ -130,7 +124,7 @@ self.addEventListener('sync', (event) => {
 // Push notifications
 self.addEventListener('push', (event) => {
   console.log('Service Worker: Push notification received');
-
+  
   const options = {
     body: event.data ? event.data.text() : 'New notification',
     icon: '/icon-192.png',
@@ -168,9 +162,9 @@ async function syncExamAnswers() {
   try {
     const cache = await caches.open(DYNAMIC_CACHE);
     const requests = await cache.keys();
-
+    
     // Find pending exam submissions
-    const pendingSubmissions = requests.filter(req =>
+    const pendingSubmissions = requests.filter(req => 
       req.url.includes('/api/student/exams/') && req.method === 'POST'
     );
 
@@ -193,7 +187,7 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
-
+  
   if (event.data && event.data.type === 'CACHE_URLS') {
     event.waitUntil(
       caches.open(DYNAMIC_CACHE).then((cache) => {

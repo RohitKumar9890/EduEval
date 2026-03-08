@@ -3,8 +3,7 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 import api, { setAccessToken } from '../../lib/api';
 import Logo from '../../components/Logo';
-import { signInWithGoogle } from '../../lib/firebase';
-import { msalInstance, loginRequest } from '../../lib/microsoftAuth';
+import { signInWithGoogle, signInWithMicrosoft } from '../../lib/firebase';
 
 export default function Login() {
   const { register, handleSubmit, formState: { errors } } = useForm();
@@ -115,52 +114,7 @@ export default function Login() {
   };
 
   const handleGoogleLogin = () => handleOAuthLogin('Google', signInWithGoogle);
-
-  const handleMicrosoftLogin = async () => {
-    setOauthLoading(true);
-    setErrorMessage('');
-
-    try {
-      // 1. MSAL Popup Login
-      const loginResponse = await msalInstance.loginPopup(loginRequest);
-
-      // 2. Send the Microsoft token directly to backend
-      // We use the ID token provided by Microsoft
-      const res = await api.post('/auth/oauth/login', {
-        idToken: loginResponse.idToken,
-        provider: 'microsoft.com',
-      });
-
-      const { accessToken, refreshToken, user } = res.data;
-
-      // Store tokens
-      sessionStorage.setItem('accessToken', accessToken);
-      sessionStorage.setItem('refreshToken', refreshToken);
-      sessionStorage.setItem('userRole', user.role);
-
-      setAccessToken(accessToken);
-
-      // Redirect based on role
-      if (user.role === 'admin') {
-        router.push('/admin/users');
-      } else if (user.role === 'faculty') {
-        router.push('/faculty/exams');
-      } else if (user.role === 'student') {
-        router.push('/student/exams');
-      } else {
-        router.push('/dashboard');
-      }
-    } catch (e) {
-      setOauthLoading(false);
-
-      if (e.name === 'BrowserAuthError' && e.message.includes('user_cancelled')) {
-        return; // User closed the popup, silently ignore
-      }
-
-      setErrorMessage(e.response?.data?.message || 'Microsoft sign-in failed. Please try again.');
-      console.error('Microsoft login error:', e);
-    }
-  };
+  const handleMicrosoftLogin = () => handleOAuthLogin('Microsoft', signInWithMicrosoft);
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-6">
