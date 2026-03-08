@@ -20,7 +20,7 @@ router.post(
   [
     body('title').isString().isLength({ min: 1 }),
     body('type').isIn(['mcq', 'quiz', 'coding']),
-    body('subjectId').isString().isLength({ min: 12 }),
+    body('subjectId').isString().isLength({ min: 6 }),
     body('durationMinutes').isInt({ min: 1 }),
     body('totalMarks').isInt({ min: 0 }),
     body('mcqQuestions').optional().isArray(),
@@ -29,7 +29,7 @@ router.post(
   createExam
 );
 
-router.get('/:id', [param('id').isString().isLength({ min: 12 })], getExam);
+router.get('/:id', [param('id').isString().isLength({ min: 6 })], getExam);
 
 router.patch(
   '/:id',
@@ -41,7 +41,7 @@ router.patch(
 router.post(
   '/:id/clone',
   [
-    param('id').isString().isLength({ min: 12 }),
+    param('id').isString().isLength({ min: 6 }),
     body('title').optional().isString().isLength({ min: 3, max: 200 }),
     body('durationMinutes').optional().isInt({ min: 1, max: 480 }),
     body('totalMarks').optional().isInt({ min: 1 }),
@@ -51,8 +51,8 @@ router.post(
   asyncHandler(cloneExam)
 );
 
-router.post('/:id/publish', [param('id').isString().isLength({ min: 12 })], publishExam);
-router.post('/:id/unpublish', [param('id').isString().isLength({ min: 12 })], unpublishExam);
-router.delete('/:id', [param('id').isString().isLength({ min: 12 })], deleteExam);
+router.post('/:id/publish', [param('id').isString().isLength({ min: 6 })], publishExam);
+router.post('/:id/unpublish', [param('id').isString().isLength({ min: 6 })], unpublishExam);
+router.delete('/:id', [param('id').isString().isLength({ min: 6 })], deleteExam);
 
 export default router;
