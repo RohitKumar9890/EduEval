@@ -3,7 +3,8 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 import api, { setAccessToken } from '../../lib/api';
 import Logo from '../../components/Logo';
-import { signInWithGoogle, signInWithMicrosoft } from '../../lib/firebase';
+import { signInWithGoogle } from '../../lib/firebase';
+import { signInWithMicrosoft } from '../../lib/ms-auth';
 
 export default function Login() {
   const { register, handleSubmit, formState: { errors } } = useForm();
@@ -15,18 +16,18 @@ export default function Login() {
   const onSubmit = async (values) => {
     setLoading(true);
     setErrorMessage('');
-    
+
     try {
       const res = await api.post('/auth/login', values);
       const { accessToken, refreshToken, user } = res.data;
-      
+
       // Use sessionStorage instead of localStorage for auto-logout on close
       sessionStorage.setItem('accessToken', accessToken);
       sessionStorage.setItem('refreshToken', refreshToken);
       sessionStorage.setItem('userRole', user.role);
-      
+
       setAccessToken(accessToken);
-      
+
       // Redirect based on role
       if (user.role === 'admin') {
         router.push('/admin/users');
@@ -39,7 +40,7 @@ export default function Login() {
       }
     } catch (e) {
       setLoading(false);
-      
+
       // Provide detailed error messages
       if (!e.response) {
         setErrorMessage('Network error. Please check your connection and try again.');
@@ -52,7 +53,7 @@ export default function Login() {
       } else {
         setErrorMessage('Login failed. Please try again later.');
       }
-      
+
       console.error('Login error:', e);
     }
   };
@@ -60,26 +61,26 @@ export default function Login() {
   const handleOAuthLogin = async (provider, signInFunction) => {
     setOauthLoading(true);
     setErrorMessage('');
-    
+
     try {
       // Step 1: Sign in with Firebase OAuth
       const { idToken, user: oauthUser } = await signInFunction();
-      
+
       // Step 2: Send token to backend for verification and user creation
       const res = await api.post('/auth/oauth/login', {
         idToken,
         provider: oauthUser.provider,
       });
-      
+
       const { accessToken, refreshToken, user } = res.data;
-      
+
       // Store tokens
       sessionStorage.setItem('accessToken', accessToken);
       sessionStorage.setItem('refreshToken', refreshToken);
       sessionStorage.setItem('userRole', user.role);
-      
+
       setAccessToken(accessToken);
-      
+
       // Redirect based on role
       if (user.role === 'admin') {
         router.push('/admin/users');
@@ -92,7 +93,7 @@ export default function Login() {
       }
     } catch (e) {
       setOauthLoading(false);
-      
+
       // Handle OAuth-specific errors
       if (e.code === 'auth/popup-closed-by-user') {
         setErrorMessage('Sign-in cancelled. Please try again.');
@@ -108,13 +109,61 @@ export default function Login() {
       } else {
         setErrorMessage(`${provider} sign-in failed. Please try again.`);
       }
-      
+
       console.error(`${provider} login error:`, e);
     }
   };
 
+  const handleMsalLogin = async () => {
+    setOauthLoading(true);
+    setErrorMessage('');
+
+    try {
+      // Step 1: Sign in with MSAL OAuth
+      const { idToken, user: msalUser } = await signInWithMicrosoft();
+
+      // Step 2: Send token to backend for verification and user creation
+      const res = await api.post('/auth/microsoft/login', {
+        idToken,
+        provider: msalUser.provider,
+      });
+
+      const { accessToken, refreshToken, user } = res.data;
+
+      // Store tokens
+      sessionStorage.setItem('accessToken', accessToken);
+      sessionStorage.setItem('refreshToken', refreshToken);
+      sessionStorage.setItem('userRole', user.role);
+
+      setAccessToken(accessToken);
+
+      // Redirect based on role
+      if (user.role === 'admin') {
+        router.push('/admin/users');
+      } else if (user.role === 'faculty') {
+        router.push('/faculty/exams');
+      } else if (user.role === 'student') {
+        router.push('/student/exams');
+      } else {
+        router.push('/dashboard');
+      }
+    } catch (e) {
+      setOauthLoading(false);
+
+      if (!e.response) {
+        setErrorMessage('Sign-in failed. Please check your connection and try again.');
+      } else if (e.response?.data?.message) {
+        setErrorMessage(e.response.data.message);
+      } else {
+        setErrorMessage(`Microsoft sign-in failed. Please try again.`);
+      }
+
+      console.error(`Microsoft login error:`, e);
+    }
+  };
+
   const handleGoogleLogin = () => handleOAuthLogin('Google', signInWithGoogle);
-  const handleMicrosoftLogin = () => handleOAuthLogin('Microsoft', signInWithMicrosoft);
+  const handleMicrosoftLogin = handleMsalLogin;
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-6">
@@ -123,7 +172,7 @@ export default function Login() {
         <div className="flex justify-center mb-6">
           <Logo size="xl" showText={true} />
         </div>
-        
+
         <h1 className="text-2xl font-bold text-center mb-2">Welcome Back</h1>
         <p className="text-center text-gray-600 text-sm mb-6">
           Sign in to access your account

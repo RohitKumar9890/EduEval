@@ -1,11 +1,11 @@
 // Firebase Client SDK for Authentication
 import { initializeApp, getApps } from 'firebase/app';
-import { 
-  getAuth, 
-  GoogleAuthProvider, 
+import {
+  getAuth,
+  GoogleAuthProvider,
   OAuthProvider,
   signInWithPopup,
-  signOut as firebaseSignOut 
+  signOut as firebaseSignOut
 } from 'firebase/auth';
 
 // Firebase configuration
@@ -16,9 +16,18 @@ const firebaseConfig = {
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
 };
 
-// Initialize Firebase (only once)
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-const auth = getAuth(app);
+// Initialize Firebase only if config is present to prevent build crashes
+let app;
+let auth;
+
+try {
+  if (firebaseConfig.apiKey) {
+    app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+    auth = getAuth(app);
+  }
+} catch (error) {
+  console.warn('Firebase initialization skipped: Missing credentials');
+}
 
 // Configure providers
 const googleProvider = new GoogleAuthProvider();
@@ -40,7 +49,7 @@ export const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     const idToken = await result.user.getIdToken();
-    
+
     return {
       idToken,
       user: {
@@ -65,7 +74,7 @@ export const signInWithMicrosoft = async () => {
   try {
     const result = await signInWithPopup(auth, microsoftProvider);
     const idToken = await result.user.getIdToken();
-    
+
     return {
       idToken,
       user: {

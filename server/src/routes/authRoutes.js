@@ -23,7 +23,7 @@ router.post(
   '/login',
   authLimiter,
   [
-    body('email').isEmail(), 
+    body('email').isEmail(),
     body('password').isString().isLength({ min: 1 }),
     body('mfaToken').optional().isString().isLength({ min: 6, max: 6 })
   ],
@@ -56,7 +56,7 @@ router.post(
   asyncHandler(resetPassword)
 );
 
-// OAuth login route (Google/Microsoft)
+// OAuth login route (Google via Firebase)
 router.post(
   '/oauth/login',
   authLimiter,
@@ -65,6 +65,16 @@ router.post(
     body('provider').optional().isString().isIn(['google.com', 'microsoft.com', 'google', 'microsoft']),
   ],
   asyncHandler(oauthLogin)
+);
+
+import { microsoftLogin } from '../controllers/microsoftAuthController.js';
+
+// Direct Microsoft MSAL login route
+router.post(
+  '/microsoft/login',
+  authLimiter,
+  [body('idToken').isString().isLength({ min: 10 })],
+  asyncHandler(microsoftLogin)
 );
 
 // MFA routes
