@@ -34,12 +34,33 @@ const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({
   prompt: 'select_account', // Always show account selection
 });
+googleProvider.addScope('email');
+googleProvider.addScope('profile');
 
 const microsoftProvider = new OAuthProvider('microsoft.com');
 microsoftProvider.setCustomParameters({
   prompt: 'select_account',
   tenant: 'common', // Allow personal and work/school accounts
 });
+microsoftProvider.addScope('openid');
+microsoftProvider.addScope('profile');
+microsoftProvider.addScope('email');
+
+const ensureAuthConfigured = () => {
+  if (auth) return auth;
+
+  const missingVars = [
+    'NEXT_PUBLIC_FIREBASE_API_KEY',
+    'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN',
+    'NEXT_PUBLIC_FIREBASE_PROJECT_ID',
+  ].filter((key) => !process.env[key]);
+
+  const error = new Error(
+    `Firebase Authentication is not configured. Missing: ${missingVars.join(', ')}`
+  );
+  error.code = 'auth/configuration-missing';
+  throw error;
+};
 
 /**
  * Sign in with Google
@@ -47,7 +68,8 @@ microsoftProvider.setCustomParameters({
  */
 export const signInWithGoogle = async () => {
   try {
-    const result = await signInWithPopup(auth, googleProvider);
+    const firebaseAuth = ensureAuthConfigured();
+    const result = await signInWithPopup(firebaseAuth, googleProvider);
     const idToken = await result.user.getIdToken();
 
     return {
@@ -72,7 +94,8 @@ export const signInWithGoogle = async () => {
  */
 export const signInWithMicrosoft = async () => {
   try {
-    const result = await signInWithPopup(auth, microsoftProvider);
+    const firebaseAuth = ensureAuthConfigured();
+    const result = await signInWithPopup(firebaseAuth, microsoftProvider);
     const idToken = await result.user.getIdToken();
 
     return {
@@ -96,7 +119,8 @@ export const signInWithMicrosoft = async () => {
  */
 export const signOut = async () => {
   try {
-    await firebaseSignOut(auth);
+    const firebaseAuth = ensureAuthConfigured();
+    await firebaseSignOut(firebaseAuth);
   } catch (error) {
     console.error('Sign-out error:', error);
     throw error;

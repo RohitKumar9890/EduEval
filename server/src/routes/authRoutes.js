@@ -67,14 +67,16 @@ router.post(
   asyncHandler(oauthLogin)
 );
 
-import { microsoftLogin } from '../controllers/microsoftAuthController.js';
-
-// Direct Microsoft MSAL login route
+// Backwards-compatible Microsoft route. The client now sends a Firebase ID
+// token here as well, so we can use the same verification path as Google.
 router.post(
   '/microsoft/login',
   authLimiter,
-  [body('idToken').isString().isLength({ min: 10 })],
-  asyncHandler(microsoftLogin)
+  [
+    body('idToken').isString().isLength({ min: 10 }),
+    body('provider').optional().isString().isIn(['microsoft.com', 'microsoft']),
+  ],
+  asyncHandler(oauthLogin)
 );
 
 // MFA routes

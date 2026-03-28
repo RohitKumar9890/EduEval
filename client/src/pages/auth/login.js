@@ -3,8 +3,7 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 import api, { setAccessToken } from '../../lib/api';
 import Logo from '../../components/Logo';
-import { signInWithGoogle } from '../../lib/firebase';
-import { signInWithMicrosoft } from '../../lib/ms-auth';
+import { signInWithGoogle, signInWithMicrosoft } from '../../lib/firebase';
 
 export default function Login() {
   const { register, handleSubmit, formState: { errors } } = useForm();
@@ -13,31 +12,31 @@ export default function Login() {
   const [oauthLoading, setOauthLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  const completeLogin = ({ accessToken, refreshToken, user }) => {
+    sessionStorage.setItem('accessToken', accessToken);
+    sessionStorage.setItem('refreshToken', refreshToken);
+    sessionStorage.setItem('userRole', user.role);
+
+    setAccessToken(accessToken);
+
+    if (user.role === 'admin') {
+      router.push('/admin/users');
+    } else if (user.role === 'faculty') {
+      router.push('/faculty/exams');
+    } else if (user.role === 'student') {
+      router.push('/student/exams');
+    } else {
+      router.push('/dashboard');
+    }
+  };
+
   const onSubmit = async (values) => {
     setLoading(true);
     setErrorMessage('');
 
     try {
       const res = await api.post('/auth/login', values);
-      const { accessToken, refreshToken, user } = res.data;
-
-      // Use sessionStorage instead of localStorage for auto-logout on close
-      sessionStorage.setItem('accessToken', accessToken);
-      sessionStorage.setItem('refreshToken', refreshToken);
-      sessionStorage.setItem('userRole', user.role);
-
-      setAccessToken(accessToken);
-
-      // Redirect based on role
-      if (user.role === 'admin') {
-        router.push('/admin/users');
-      } else if (user.role === 'faculty') {
-        router.push('/faculty/exams');
-      } else if (user.role === 'student') {
-        router.push('/student/exams');
-      } else {
-        router.push('/dashboard');
-      }
+      completeLogin(res.data);
     } catch (e) {
       setLoading(false);
 
@@ -63,34 +62,14 @@ export default function Login() {
     setErrorMessage('');
 
     try {
-      // Step 1: Sign in with Firebase OAuth
+      // Sign in with Firebase OAuth, then exchange the Firebase ID token
+      // for EduEval's JWT pair.
       const { idToken, user: oauthUser } = await signInFunction();
-
-      // Step 2: Send token to backend for verification and user creation
       const res = await api.post('/auth/oauth/login', {
         idToken,
         provider: oauthUser.provider,
       });
-
-      const { accessToken, refreshToken, user } = res.data;
-
-      // Store tokens
-      sessionStorage.setItem('accessToken', accessToken);
-      sessionStorage.setItem('refreshToken', refreshToken);
-      sessionStorage.setItem('userRole', user.role);
-
-      setAccessToken(accessToken);
-
-      // Redirect based on role
-      if (user.role === 'admin') {
-        router.push('/admin/users');
-      } else if (user.role === 'faculty') {
-        router.push('/faculty/exams');
-      } else if (user.role === 'student') {
-        router.push('/student/exams');
-      } else {
-        router.push('/dashboard');
-      }
+      completeLogin(res.data);
     } catch (e) {
       setOauthLoading(false);
 
@@ -102,6 +81,8 @@ export default function Login() {
       } else if (e.code === 'auth/cancelled-popup-request') {
         // User opened another popup, ignore this error
         return;
+      } else if (e.code === 'auth/configuration-missing') {
+        setErrorMessage('OAuth is not configured yet. Add the Firebase public keys to client/.env.local.');
       } else if (!e.response) {
         setErrorMessage('Network error. Please check your connection and try again.');
       } else if (e.response?.data?.message) {
@@ -114,56 +95,8 @@ export default function Login() {
     }
   };
 
-  const handleMsalLogin = async () => {
-    setOauthLoading(true);
-    setErrorMessage('');
-
-    try {
-      // Step 1: Sign in with MSAL OAuth
-      const { idToken, user: msalUser } = await signInWithMicrosoft();
-
-      // Step 2: Send token to backend for verification and user creation
-      const res = await api.post('/auth/microsoft/login', {
-        idToken,
-        provider: msalUser.provider,
-      });
-
-      const { accessToken, refreshToken, user } = res.data;
-
-      // Store tokens
-      sessionStorage.setItem('accessToken', accessToken);
-      sessionStorage.setItem('refreshToken', refreshToken);
-      sessionStorage.setItem('userRole', user.role);
-
-      setAccessToken(accessToken);
-
-      // Redirect based on role
-      if (user.role === 'admin') {
-        router.push('/admin/users');
-      } else if (user.role === 'faculty') {
-        router.push('/faculty/exams');
-      } else if (user.role === 'student') {
-        router.push('/student/exams');
-      } else {
-        router.push('/dashboard');
-      }
-    } catch (e) {
-      setOauthLoading(false);
-
-      if (!e.response) {
-        setErrorMessage('Sign-in failed. Please check your connection and try again.');
-      } else if (e.response?.data?.message) {
-        setErrorMessage(e.response.data.message);
-      } else {
-        setErrorMessage(`Microsoft sign-in failed. Please try again.`);
-      }
-
-      console.error(`Microsoft login error:`, e);
-    }
-  };
-
   const handleGoogleLogin = () => handleOAuthLogin('Google', signInWithGoogle);
-  const handleMicrosoftLogin = handleMsalLogin;
+  const handleMicrosoftLogin = () => handleOAuthLogin('Microsoft', signInWithMicrosoft);
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-6">
