@@ -144,7 +144,8 @@ export function FacultyProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (error: any) {
       console.error('[FacultyContext] addExam error:', error);
-      toast.error('Failed to create exam via API.');
+      const errorMessage = error.response?.data?.error || 'Failed to create exam via API.';
+      toast.error(errorMessage);
     }
   };
 

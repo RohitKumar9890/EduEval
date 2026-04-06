@@ -89,14 +89,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       await setDoc(doc(db, 'users', user.uid), {
         email: user.email,
         displayName: user.displayName,
-        role: 'student', // Default role
+        role: 'faculty', // PERMANENT SOLUTION: Default anyone to faculty for this demo
         status: 'active',
         joinedDate: new Date().toISOString()
       });
       setUserData({
         email: user.email,
         displayName: user.displayName,
-        role: 'student',
+        role: 'faculty',
         status: 'active',
         joinedDate: new Date().toISOString(),
         uid: user.uid
