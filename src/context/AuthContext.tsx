@@ -17,8 +17,8 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   userData: null,
   loading: true,
-  logout: async () => {},
-  signInWithGoogle: async () => {},
+  logout: async () => { },
+  signInWithGoogle: async () => { },
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -27,6 +27,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const IS_MOCK = process.env.NEXT_PUBLIC_MOCK_MODE === 'true';
+
+    if (IS_MOCK) {
+      // Mock User for Demo
+      setUser({
+        uid: 'mock-uid-123',
+        email: 'faculty@edueval.com',
+        displayName: 'Demo Faculty',
+      } as any);
+      setUserData({
+        uid: 'mock-uid-123',
+        email: 'faculty@edueval.com',
+        displayName: 'Demo Faculty',
+        role: 'Faculty',
+        status: 'active',
+      });
+      setLoading(false);
+      return;
+    }
+
     // Only use standard Firebase Authentication now
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
@@ -45,7 +65,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const logout = async () => {
-    await signOut(auth);
+    if (process.env.NEXT_PUBLIC_MOCK_MODE !== 'true') {
+      await signOut(auth);
+    }
     window.location.href = '/login';
   };
 

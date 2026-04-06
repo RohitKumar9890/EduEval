@@ -12,18 +12,26 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '1:000:web:000',
 };
 
+const IS_MOCK = process.env.NEXT_PUBLIC_MOCK_MODE === 'true';
+
 // Initialize Firebase (Gracefully handle empty config)
 let app: any = null;
-let auth: any = { 
-  onAuthStateChanged: (cb: any) => () => {},
-  signOut: async () => {} 
+let auth: any = IS_MOCK ? {
+  onAuthStateChanged: (cb: any) => {
+    // If someone calls the method on the object itself
+    if (typeof cb === 'function') cb(null);
+    return () => { };
+  },
+  signOut: async () => { },
+  currentUser: null
+} : {
+  onAuthStateChanged: (cb: any) => () => { },
+  signOut: async () => { }
 };
 let db: any = {
   collection: () => ({ doc: () => ({ get: async () => ({ exists: () => false }) }) })
 };
 let storage: any = {};
-
-const IS_MOCK = process.env.NEXT_PUBLIC_MOCK_MODE === 'true';
 
 if (!IS_MOCK) {
   try {
