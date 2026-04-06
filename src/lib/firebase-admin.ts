@@ -17,6 +17,14 @@ if (!admin.apps.length) {
   }
 }
 
-export const adminAuth = admin.auth();
-export const adminDb = admin.firestore();
-export { admin };
+let adminAuth: admin.auth.Auth | any;
+let adminDb: admin.firestore.Firestore | any;
+
+try {
+  adminAuth = admin.auth();
+  adminDb = admin.firestore();
+} catch (e) {
+  console.error('[Firebase-Admin] Failed to initialize default app:', (e as Error).message);
+}
+
+export { adminAuth, adminDb, admin };
