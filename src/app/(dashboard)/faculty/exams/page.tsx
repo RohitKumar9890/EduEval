@@ -3,14 +3,29 @@
 import React, { useState } from 'react';
 import { useFaculty } from '@/context/FacultyContext';
 import { motion } from 'framer-motion';
-import { FileEdit, Plus, Calendar, Clock, BookOpen, Hash, Copy, CheckCircle, Eye, Trash2, ToggleLeft, ArrowLeft } from 'lucide-react';
+import { FileEdit, Plus, Calendar, Clock, BookOpen, Hash, Copy, CheckCircle, Eye, Trash2, ToggleLeft, ArrowLeft, Wand2, FileText, X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+
+const SAMPLE_QUESTIONS: Record<string, any[]> = {
+   'Computer Science': [
+      { id: Date.now() + 1, title: 'What is the time complexity of searching in a Balanced Binary Search Tree?', options: ['O(1)', 'O(n)', 'O(log n)', 'O(n log n)'], correctOption: 2, marks: 10 },
+      { id: Date.now() + 2, title: 'Which of the following is NOT a reserved keyword in JavaScript?', options: ['interface', 'throws', 'program', 'short'], correctOption: 2, marks: 10 },
+      { id: Date.now() + 3, title: 'What does HTTP stand for?', options: ['High Text Transfer Protocol', 'HyperText Transfer Protocol', 'Hyperlink Text Transfer Protocol', 'None of these'], correctOption: 1, marks: 10 }
+   ],
+   'Mathematics': [
+      { id: Date.now() + 4, title: 'Solve for x: 2x + 5 = 15', options: ['x = 5', 'x = 10', 'x = 7.5', 'x = 2'], correctOption: 0, marks: 10 },
+      { id: Date.now() + 5, title: 'What is the value of Pi to 2 decimal places?', options: ['3.12', '3.14', '3.16', '3.18'], correctOption: 1, marks: 10 },
+      { id: Date.now() + 6, title: 'What is the square root of 144?', options: ['12', '14', '16', '10'], correctOption: 0, marks: 10 }
+   ]
+};
 
 type ViewState = 'list' | 'details' | 'questions';
 
 export default function ExamsPage() {
    const { exams, subjects, addExam, deleteExam, toggleExamStatus, publishResults } = useFaculty();
    const [view, setView] = useState<ViewState>('list');
+   const [showBulkImport, setShowBulkImport] = useState(false);
+   const [bulkText, setBulkText] = useState('');
 
    const [formData, setFormData] = useState({
       title: '',
@@ -86,6 +101,53 @@ export default function ExamsPage() {
 
       toast.success('Exam successfully deployed & published!');
       resetForm();
+   };
+
+   const handleMagicFill = () => {
+      const subject = subjects.find(s => s.id === formData.subjectId);
+      const subjectName = subject?.name || '';
+
+      const samples = SAMPLE_QUESTIONS[subjectName] || SAMPLE_QUESTIONS['Computer Science'];
+      const newQuestions = samples.map(q => ({
+         ...q,
+         id: Math.random(),
+         // Ensure we don't end up with reference issues
+         options: [...q.options]
+      }));
+
+      setFormData({
+         ...formData,
+         questions: [...formData.questions, ...newQuestions]
+      });
+      toast.success(`Added ${newQuestions.length} sample questions for ${subjectName || 'Computer Science'}`);
+   };
+
+   const handleBulkImport = () => {
+      if (!bulkText.trim()) {
+         toast.error("Please enter some text to import.");
+         return;
+      }
+
+      const lines = bulkText.split('\n').filter(l => l.trim().includes('|'));
+      const newQs = lines.map(line => {
+         const parts = line.split('|').map(s => s.trim());
+         return {
+            id: Math.random(),
+            title: parts[0] || 'New Question',
+            options: [parts[1] || 'Opt 1', parts[2] || 'Opt 2', parts[3] || 'Opt 3', parts[4] || 'Opt 4'],
+            correctOption: parseInt(parts[5]) || 0,
+            marks: 10
+         };
+      });
+
+      if (newQs.length > 0) {
+         setFormData({ ...formData, questions: [...formData.questions, ...newQs] });
+         toast.success(`Successfully imported ${newQs.length} questions!`);
+         setBulkText('');
+         setShowBulkImport(false);
+      } else {
+         toast.error('Invalid format. Ensure lines have pipes: Q | A | B | C | D | 0');
+      }
    };
 
    const resetForm = () => {
@@ -277,8 +339,61 @@ export default function ExamsPage() {
                      <h2 className="text-xl font-bold text-[#1D1D35]">Step 2: Exam Builder</h2>
                      <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mt-1">{formData.type.replace('_', ' ')} Format</p>
                   </div>
-                  <button onClick={() => setView('details')} className="text-slate-400 hover:text-slate-600 font-medium text-sm flex items-center gap-1"><ArrowLeft size={16} /> Back</button>
+
+                  <div className="flex items-center gap-2">
+                     <button
+                        onClick={handleMagicFill}
+                        className="flex items-center gap-2 px-3 py-2 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-xl hover:bg-emerald-100 transition text-xs font-bold"
+                        title="Add sample questions based on subject"
+                     >
+                        <Wand2 size={16} />
+                        Magic Fill
+                     </button>
+                     <button
+                        onClick={() => setShowBulkImport(true)}
+                        className="flex items-center gap-2 px-3 py-2 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-xl hover:bg-indigo-100 transition text-xs font-bold"
+                     >
+                        <FileText size={16} />
+                        Bulk Import
+                     </button>
+                     <div className="h-8 w-[1px] bg-slate-100 mx-2"></div>
+                     <button onClick={() => setView('details')} className="text-slate-400 hover:text-slate-600 font-medium text-sm flex items-center gap-1"><ArrowLeft size={16} /> Back</button>
+                  </div>
                </div>
+
+               {/* Bulk Import Modal */}
+               {showBulkImport && (
+                  <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                     <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden">
+                        <div className="p-6 bg-indigo-600 text-white flex justify-between items-center">
+                           <div>
+                              <h3 className="text-lg font-bold">Bulk Question Import</h3>
+                              <p className="text-xs text-indigo-100 opacity-80 mt-1">Paste multiple questions using the format below</p>
+                           </div>
+                           <button onClick={() => setShowBulkImport(false)} className="hover:bg-indigo-500 p-2 rounded-full transition"><X size={20} /></button>
+                        </div>
+                        <div className="p-6 space-y-4">
+                           <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Format Guide</p>
+                              <code className="text-xs text-indigo-600 font-mono font-bold block bg-white p-2 rounded border border-indigo-50">
+                                 Question | Opt1 | Opt2 | Opt3 | Opt4 | CorrectIndex(0-3)
+                              </code>
+                              <p className="text-[10px] text-slate-500 mt-2 italic">Example: What is 2+2? | 3 | 4 | 5 | 6 | 1</p>
+                           </div>
+                           <textarea
+                              className="w-full h-64 bg-slate-50 border border-slate-200 rounded-2xl p-4 font-mono text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                              placeholder="Paste questions here... (one per line)"
+                              value={bulkText}
+                              onChange={(e) => setBulkText(e.target.value)}
+                           />
+                           <div className="flex gap-3 justify-end pt-2">
+                              <button onClick={() => setShowBulkImport(false)} className="px-6 py-2.5 text-slate-500 font-bold hover:text-slate-700">Cancel</button>
+                              <button onClick={handleBulkImport} className="px-8 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">Parse & Import</button>
+                           </div>
+                        </div>
+                     </motion.div>
+                  </div>
+               )}
 
                <div className="space-y-6">
                   {formData.questions.map((q, qIndex) => (
