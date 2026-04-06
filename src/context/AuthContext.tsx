@@ -40,9 +40,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         uid: 'mock-uid-123',
         email: 'faculty@edueval.com',
         displayName: 'Demo Faculty',
-        role: 'Faculty',
+        role: 'faculty',
         status: 'active',
       });
+      // Store in localStorage for the api.ts interceptor
+      localStorage.setItem('mock_user', JSON.stringify({
+        uid: 'mock-uid-123',
+        role: 'faculty',
+        email: 'faculty@edueval.com'
+      }));
       setLoading(false);
       return;
     }
@@ -68,6 +74,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (process.env.NEXT_PUBLIC_MOCK_MODE !== 'true') {
       await signOut(auth);
     }
+    localStorage.removeItem('mock_user');
     window.location.href = '/login';
   };
 

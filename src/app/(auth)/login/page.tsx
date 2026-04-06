@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
@@ -25,7 +25,15 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { signInWithGoogle } = useAuth();
+  const { signInWithGoogle, user, userData } = useAuth();
+
+  // Automatic Re-routing if already authenticated (especially for Mock Mode)
+  useEffect(() => {
+    const IS_MOCK = process.env.NEXT_PUBLIC_MOCK_MODE === 'true';
+    if (IS_MOCK && userData?.role === 'faculty') {
+      router.push('/faculty');
+    }
+  }, [userData, router]);
 
   const handleLogin = async (e?: React.FormEvent, directEmail?: string) => {
     if (e) e.preventDefault();
