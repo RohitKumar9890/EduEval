@@ -340,24 +340,23 @@ export default function ExamsPage() {
                      <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mt-1">{formData.type.replace('_', ' ')} Format</p>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-4">
                      <button
                         onClick={handleMagicFill}
-                        className="flex items-center gap-2 px-3 py-2 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-xl hover:bg-emerald-100 transition text-xs font-bold"
-                        title="Add sample questions based on subject"
+                        className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition text-sm font-bold shadow-md"
                      >
-                        <Wand2 size={16} />
-                        Magic Fill
+                        <Wand2 size={18} />
+                        ✨ Magic Fill
                      </button>
                      <button
                         onClick={() => setShowBulkImport(true)}
-                        className="flex items-center gap-2 px-3 py-2 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-xl hover:bg-indigo-100 transition text-xs font-bold"
+                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition text-sm font-bold shadow-md"
                      >
-                        <FileText size={16} />
-                        Bulk Import
+                        <FileText size={18} />
+                        📄 Bulk Import
                      </button>
-                     <div className="h-8 w-[1px] bg-slate-100 mx-2"></div>
-                     <button onClick={() => setView('details')} className="text-slate-400 hover:text-slate-600 font-medium text-sm flex items-center gap-1"><ArrowLeft size={16} /> Back</button>
+                     <div className="h-8 w-[1px] bg-slate-200 mx-2"></div>
+                     <button onClick={() => setView('details')} className="text-slate-500 hover:text-slate-800 font-bold text-sm flex items-center gap-1 border border-slate-200 px-3 py-1.5 rounded-lg transition-colors"><ArrowLeft size={16} /> Back</button>
                   </div>
                </div>
 
