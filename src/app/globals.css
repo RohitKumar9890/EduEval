@@ -54,3 +54,10 @@ body {
     -webkit-text-fill-color: transparent;
   }
 }
+
+/* Fix for input text visibility since body color is white */
+@layer base {
+  input, textarea, select, option {
+    color: #0f172a; /* slate-900 */
+  }
+}
