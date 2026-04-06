@@ -12,7 +12,8 @@ api.interceptors.request.use(async (config) => {
   // Try to get token from Firebase (or Mock)
   try {
     if (IS_MOCK) {
-      const mockUserStr = localStorage.getItem('mock_user');
+      const isClient = typeof window !== 'undefined';
+      const mockUserStr = isClient ? localStorage.getItem('mock_user') : null;
       if (mockUserStr) {
         const { role } = JSON.parse(mockUserStr);
         config.headers.Authorization = `Bearer mock-token-${role}`;
