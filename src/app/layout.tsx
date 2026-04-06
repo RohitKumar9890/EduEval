@@ -29,7 +29,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased selection:bg-indigo-500/30`}>
         <AuthProvider>
           {children}
-          <Toaster 
+          <Toaster
             position="bottom-right"
             toastOptions={{
               className: 'glass text-white border-white/10',
