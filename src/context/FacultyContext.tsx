@@ -104,7 +104,15 @@ export function FacultyProvider({ children }: { children: React.ReactNode }) {
 
     // Filter subjects by the logged-in faculty
     const subjectsQuery = query(collection(db, 'subjects'), where('facultyId', '==', userData.uid));
-    const unsubSubjects = onSnapshot(subjectsQuery, (snap) => setSubjects(snap.docs.map(d => ({ id: d.id, ...d.data() }) as any)));
+    const unsubSubjects = onSnapshot(subjectsQuery, (snap) => {
+      const data = snap.docs.map(d => ({ id: d.id, ...d.data() }) as any);
+      if (data.length === 0) {
+        // Provide a default subject for demo purposes if nothing in DB
+        setSubjects([{ id: 'course_101', name: 'Computer Science', code: 'CS101', facultyId: userData.uid, credits: 4 }]);
+      } else {
+        setSubjects(data);
+      }
+    });
 
     const unsubSubmissions = onSnapshot(collection(db, 'student_exams'), (snap) => setSubmissions(snap.docs.map(d => ({ id: d.id, ...d.data() }) as any)));
 

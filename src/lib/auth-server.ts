@@ -38,5 +38,7 @@ export async function verifyToken(req: Request): Promise<DecodedToken | null> {
 
 export function checkRole(token: DecodedToken, roles: string[]): boolean {
   if (!token || !token.role) return false;
-  return roles.includes(token.role);
+  const userRole = token.role.toLowerCase();
+  const allowedRoles = roles.map(r => r.toLowerCase());
+  return allowedRoles.includes(userRole);
 }

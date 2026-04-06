@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFaculty } from '@/context/FacultyContext';
 import { motion } from 'framer-motion';
 import { FileEdit, Plus, Calendar, Clock, BookOpen, Hash, Copy, CheckCircle, Eye, Trash2, ToggleLeft, ArrowLeft, Wand2, FileText, X } from 'lucide-react';
@@ -30,13 +30,20 @@ export default function ExamsPage() {
    const [formData, setFormData] = useState({
       title: '',
       type: 'multiple_choice',
-      subjectId: subjects[0]?.id || '',
+      subjectId: '',
       durationMinutes: 60,
       totalMarks: 100,
       startDate: '',
       endDate: '',
       questions: [] as any[]
    });
+
+   // Sync subjectId when subjects load
+   useEffect(() => {
+      if (subjects.length > 0 && !formData.subjectId) {
+         setFormData(prev => ({ ...prev, subjectId: subjects[0].id }));
+      }
+   }, [subjects, formData.subjectId]);
 
    const handleCopy = (code: string | undefined) => {
       if (!code) return;
