@@ -98,26 +98,42 @@ export function FacultyProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!userData) return;
 
-    const unsubExams = onSnapshot(collection(db, 'exams'), (snap) => setExams(snap.docs.map(d => ({id: d.id, ...d.data()}) as any)));
-    const unsubMaterials = onSnapshot(collection(db, 'faculty_materials'), (snap) => setMaterials(snap.docs.map(d => ({id: d.id, ...d.data()}) as any)));
-    const unsubAnnouncements = onSnapshot(collection(db, 'announcements'), (snap) => setAnnouncements(snap.docs.map(d => ({id: d.id, ...d.data()}) as any)));
-    
+    const unsubExams = onSnapshot(collection(db, 'exams'), (snap) => setExams(snap.docs.map(d => ({ id: d.id, ...d.data() }) as any)));
+    const unsubMaterials = onSnapshot(collection(db, 'faculty_materials'), (snap) => setMaterials(snap.docs.map(d => ({ id: d.id, ...d.data() }) as any)));
+    const unsubAnnouncements = onSnapshot(collection(db, 'announcements'), (snap) => setAnnouncements(snap.docs.map(d => ({ id: d.id, ...d.data() }) as any)));
+
     // Filter subjects by the logged-in faculty
     const subjectsQuery = query(collection(db, 'subjects'), where('facultyId', '==', userData.uid));
-    const unsubSubjects = onSnapshot(subjectsQuery, (snap) => setSubjects(snap.docs.map(d => ({id: d.id, ...d.data()}) as any)));
-    
-    const unsubSubmissions = onSnapshot(collection(db, 'student_exams'), (snap) => setSubmissions(snap.docs.map(d => ({id: d.id, ...d.data()}) as any)));
-    
+    const unsubSubjects = onSnapshot(subjectsQuery, (snap) => setSubjects(snap.docs.map(d => ({ id: d.id, ...d.data() }) as any)));
+
+    const unsubSubmissions = onSnapshot(collection(db, 'student_exams'), (snap) => setSubmissions(snap.docs.map(d => ({ id: d.id, ...d.data() }) as any)));
+
     return () => { unsubExams(); unsubMaterials(); unsubAnnouncements(); unsubSubjects(); unsubSubmissions(); };
   }, [userData]);
 
   const addExam = async (exam: Omit<Exam, 'id' | 'createdAt' | 'examCode'>) => {
     try {
-      await api.post(`/courses/${exam.subjectId}/exams`, {
+      const response = await api.post(`/courses/${exam.subjectId}/exams`, {
         ...exam,
         startDate: exam.startDate, // Explicitly pass for the API handler
       });
-      toast.success('Exam created & students notified via email!');
+
+      // If we're in Mock Mode, the onSnapshot won't trigger with new data.
+      // So we manually update the state to show the new exam.
+      if (response.data.isMock) {
+        const newExam: Exam = {
+          ...exam,
+          id: response.data.id,
+          createdAt: new Date().toISOString(),
+          examCode: response.data.examCode || 'MOCK-CODE',
+          status: exam.status,
+          questionsCount: exam.questionsCount,
+        };
+        setExams(prev => [newExam, ...prev]);
+        toast.success('Exam created (Mock Mode)! Students would be notified.');
+      } else {
+        toast.success('Exam created & students notified via email!');
+      }
     } catch (error: any) {
       console.error('[FacultyContext] addExam error:', error);
       toast.error('Failed to create exam via API.');
@@ -129,8 +145,8 @@ export function FacultyProvider({ children }: { children: React.ReactNode }) {
   };
 
   const addAnnouncement = async (announcement: Omit<Announcement, 'id' | 'createdAt'>) => {
-    await addDoc(collection(db, 'announcements'), { 
-      ...announcement, 
+    await addDoc(collection(db, 'announcements'), {
+      ...announcement,
       createdAt: new Date().toISOString(),
       senderName: userData?.displayName || 'Faculty Member',
       senderRole: 'Faculty'
@@ -165,11 +181,11 @@ export function FacultyProvider({ children }: { children: React.ReactNode }) {
     announcementCount: announcements.length,
     topPerformers: [...submissions]
       .filter(s => s.status === 'completed')
-      .sort((a,b) => (b.score/b.totalMarks) - (a.score/a.totalMarks))
+      .sort((a, b) => (b.score / b.totalMarks) - (a.score / a.totalMarks))
       .slice(0, 3),
-    needsAttention: submissions.filter(s => s.status === 'completed' && (s.score/s.totalMarks) < 0.4),
+    needsAttention: submissions.filter(s => s.status === 'completed' && (s.score / s.totalMarks) < 0.4),
     averageScore: submissions.filter(s => s.status === 'completed').length > 0
-      ? (submissions.filter(s => s.status === 'completed').reduce((acc, curr) => acc + (curr.score/curr.totalMarks), 0) / submissions.filter(s => s.status === 'completed').length) * 100
+      ? (submissions.filter(s => s.status === 'completed').reduce((acc, curr) => acc + (curr.score / curr.totalMarks), 0) / submissions.filter(s => s.status === 'completed').length) * 100
       : 0,
     participationRate: 100 // Mock for now
   };

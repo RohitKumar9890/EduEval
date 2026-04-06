@@ -1,5 +1,7 @@
 import * as admin from 'firebase-admin';
 
+let isInitialized = false;
+
 if (!admin.apps.length) {
   try {
     admin.initializeApp({
@@ -12,9 +14,12 @@ if (!admin.apps.length) {
       databaseURL: `https://${process.env.FIREBASE_PROJECT_ID}.firebaseio.com`,
     });
     console.log('[Firebase-Admin] Initialized Successfully');
+    isInitialized = true;
   } catch (error: any) {
     console.error('[Firebase-Admin] Initialization Error:', error.message);
   }
+} else {
+  isInitialized = true;
 }
 
 let adminAuth: admin.auth.Auth | any;
@@ -27,4 +32,4 @@ try {
   console.error('[Firebase-Admin] Failed to initialize default app:', (e as Error).message);
 }
 
-export { adminAuth, adminDb, admin };
+export { adminAuth, adminDb, admin, isInitialized };
