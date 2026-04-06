@@ -10,7 +10,7 @@ export async function GET(req: Request) {
 
   try {
     const snap = await adminDb.collection('subjects').get();
-    const subjects = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const subjects = snap.docs.map((d: any) => ({ id: d.id, ...d.data() }));
     return NextResponse.json(subjects);
   } catch (error: any) {
     console.error('[API-Courses] Fetch Error:', error.message);
