@@ -3,7 +3,8 @@ import { adminDb } from '@/lib/firebase-admin';
 import { verifyToken, checkRole } from '@/lib/auth-server';
 import { sendExamNotification } from '@/lib/services/email';
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, context: { params: Promise<{ id: string }> }) {
+  const params = await context.params;
   const { id: courseId } = params;
   const token = await verifyToken(req);
   if (!token || !checkRole(token, ['faculty', 'admin'])) {
