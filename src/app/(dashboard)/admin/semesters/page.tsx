@@ -55,19 +55,19 @@ export default function AdminSemestersPage() {
           <form onSubmit={handleCreate} className="grid grid-cols-1 md:grid-cols-2 gap-4">
              <div className="space-y-1 md:col-span-2">
                 <label className="text-xs font-bold text-slate-500">Semester Name</label>
-                <input type="text" value={name} onChange={e=>setName(e.target.value)} placeholder="e.g. Fall 2025" className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm outline-none" />
+                <input type="text" value={name} onChange={e=>setName(e.target.value)} placeholder="e.g. Fall 2025" className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm text-black placeholder:text-slate-600 font-medium outline-none" />
              </div>
              <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-500">Start Date</label>
-                <input type="date" value={startDate} onChange={e=>setStartDate(e.target.value)} className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm outline-none" />
+                <input type="date" value={startDate} onChange={e=>setStartDate(e.target.value)} className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm text-black font-medium outline-none" />
              </div>
              <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-500">End Date</label>
-                <input type="date" value={endDate} onChange={e=>setEndDate(e.target.value)} className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm outline-none" />
+                <input type="date" value={endDate} onChange={e=>setEndDate(e.target.value)} className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm text-black font-medium outline-none" />
              </div>
              <div className="space-y-1 md:col-span-2">
                 <label className="text-xs font-bold text-slate-500">Status</label>
-                <select value={status} onChange={e=>setStatus(e.target.value as any)} className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm outline-none">
+                <select value={status} onChange={e=>setStatus(e.target.value as any)} className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm text-black font-medium outline-none cursor-pointer">
                    <option value="upcoming">Upcoming</option>
                    <option value="ongoing">Ongoing</option>
                    <option value="completed">Completed</option>

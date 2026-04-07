@@ -1,8 +1,19 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { collection, onSnapshot, getDocs, query, where, doc, setDoc, getDoc, updateDoc, addDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { 
+  db, 
+  collection, 
+  onSnapshot, 
+  getDocs, 
+  query, 
+  where, 
+  doc, 
+  setDoc, 
+  getDoc, 
+  updateDoc, 
+  addDoc 
+} from '@/lib/firebase';
 import { useAuth } from '@/context/AuthContext';
 
 // Type Definitions
@@ -16,7 +27,7 @@ export interface StudentExam {
   durationMinutes: number;
   score?: number;
   totalMarks?: number;
-  isResultsPublished?: boolean;
+  resultsPublished?: boolean;
 }
 
 // ... skipped unneeded interfaces ...
@@ -87,14 +98,14 @@ export function StudentProvider({ children }: { children: React.ReactNode }) {
 
     // Enrollments Listener
     const enrollQuery = query(collection(db, 'enrollments'), where('studentId', '==', userData.uid));
-    const unsubEnroll = onSnapshot(enrollQuery, async (snap) => {
-      const ids = snap.docs.map(d => d.data().subjectId);
+    const unsubEnroll = onSnapshot(enrollQuery, async (snap: any) => {
+      const ids = snap.docs.map((d: any) => d.data().subjectId);
       setEnrolledSubjectIds(ids);
       
       // Fetch full subject details for each ID
       if (ids.length > 0) {
-        const subjectsData = await Promise.all(ids.map(async (sid) => {
-          const sDoc = await getDoc(doc(db, 'subjects', sid));
+        const subjectsData = await Promise.all(ids.map(async (sid: string) => {
+          const sDoc = await getDoc(doc(db, 'subjects', sid)) as any;
           return sDoc.exists() ? { id: sDoc.id, ...sDoc.data() } : null;
         }));
         setEnrolledSubjects(subjectsData.filter(s => s !== null));
@@ -104,23 +115,23 @@ export function StudentProvider({ children }: { children: React.ReactNode }) {
     });
 
     const q = query(collection(db, 'student_exams'), where('studentId', '==', userData.uid));
-    const unsubStudentExams = onSnapshot(q, async (snap) => {
-      const studentExamsData = snap.docs.map(d => ({id: d.id, ...d.data()}) as any);
+    const unsubStudentExams = onSnapshot(q, async (snap: any) => {
+      const studentExamsData = snap.docs.map((d: any) => ({id: d.id, ...d.data()}) as any);
       const enrichedExams = await Promise.all(studentExamsData.map(async (se: any) => {
-        const examDoc = await getDoc(doc(db, 'exams', se.examId));
-        return { ...se, isResultsPublished: examDoc.exists() ? examDoc.data().resultsPublished : false };
+        const examDoc = await getDoc(doc(db, 'exams', se.examId)) as any;
+        return { ...se, resultsPublished: examDoc.exists() ? examDoc.data().resultsPublished : false };
       }));
       setExams(enrichedExams);
     });
 
-    const unsubAnnouncements = onSnapshot(collection(db, 'announcements'), (snap) => {
-      const all = snap.docs.map(d => ({id: d.id, ...d.data()}) as any);
+    const unsubAnnouncements = onSnapshot(collection(db, 'announcements'), (snap: any) => {
+      const all = snap.docs.map((d: any) => ({id: d.id, ...d.data()}) as any);
       const filtered = all.filter((a: any) => !a.subjectId || enrolledSubjectIds.includes(a.subjectId));
       setAnnouncements(filtered);
     });
 
-    const unsubMaterials = onSnapshot(collection(db, 'student_materials'), (snap) => {
-      const all = snap.docs.map(d => ({id: d.id, ...d.data()}) as any);
+    const unsubMaterials = onSnapshot(collection(db, 'student_materials'), (snap: any) => {
+      const all = snap.docs.map((d: any) => ({id: d.id, ...d.data()}) as any);
       const filtered = all.filter((m: any) => !m.subjectId || enrolledSubjectIds.includes(m.subjectId));
       setMaterials(filtered);
     });
@@ -128,18 +139,40 @@ export function StudentProvider({ children }: { children: React.ReactNode }) {
     return () => { unsubStudentExams(); unsubAnnouncements(); unsubMaterials(); unsubEnroll(); };
   }, [userData, enrolledSubjectIds]);
 
+  useEffect(() => {
+    // Calculate performance based on published results
+    const perfMap: Record<string, { totalScore: number; count: number; totalMax: number }> = {};
+    
+    exams.filter(e => e.status === 'completed' && e.resultsPublished).forEach(e => {
+       if (!perfMap[e.subject]) {
+          perfMap[e.subject] = { totalScore: 0, count: 0, totalMax: 0 };
+       }
+       perfMap[e.subject].totalScore += e.score || 0;
+       perfMap[e.subject].totalMax += e.totalMarks || 100;
+       perfMap[e.subject].count += 1;
+    });
+
+    const newPerformance = Object.entries(perfMap).map(([subject, data]) => ({
+       subject,
+       score: Math.round((data.totalScore / data.totalMax) * 100),
+       classAverage: 75 // Mock class average
+    }));
+
+    setPerformance(newPerformance);
+  }, [exams]);
+
   const stats = {
     enrolledExams: exams.length,
     completedExams: exams.filter(e => e.status === 'completed').length,
     inProgressExams: exams.filter(e => e.status === 'in_progress').length,
-    averageScore: exams.filter(e => e.status === 'completed' && e.isResultsPublished).length > 0
-      ? exams.filter(e => e.status === 'completed' && e.isResultsPublished).reduce((acc, curr) => acc + (curr.score || 0), 0) / exams.filter(e => e.status === 'completed' && e.isResultsPublished).length
+    averageScore: exams.filter(e => e.status === 'completed' && e.resultsPublished).length > 0
+      ? exams.filter(e => e.status === 'completed' && e.resultsPublished).reduce((acc, curr) => acc + (curr.score || 0), 0) / exams.filter(e => e.status === 'completed' && e.resultsPublished).length
       : 0,
-    highestScore: exams.filter(e => e.status === 'completed' && e.isResultsPublished).length > 0
-      ? Math.max(...exams.filter(e => e.status === 'completed' && e.isResultsPublished).map(e => e.score || 0))
+    highestScore: exams.filter(e => e.status === 'completed' && e.resultsPublished).length > 0
+      ? Math.max(...exams.filter(e => e.status === 'completed' && e.resultsPublished).map(e => e.score || 0))
       : 0,
-    lowestMarks: exams.filter(e => e.status === 'completed' && e.isResultsPublished).length > 0
-      ? Math.min(...exams.filter(e => e.status === 'completed' && e.isResultsPublished).map(e => e.score || 0))
+    lowestMarks: exams.filter(e => e.status === 'completed' && e.resultsPublished).length > 0
+      ? Math.min(...exams.filter(e => e.status === 'completed' && e.resultsPublished).map(e => e.score || 0))
       : 0,
   };
 
@@ -148,7 +181,7 @@ export function StudentProvider({ children }: { children: React.ReactNode }) {
     
     // Look up the actual exam from the faculty's 'exams' collection
     const q = query(collection(db, 'exams'), where('examCode', '==', code));
-    const snapshot = await getDocs(q);
+    const snapshot = await getDocs(q) as any;
     
     if (snapshot.empty) {
       throw new Error('Invalid exam code! Please check and try again.');
@@ -173,7 +206,7 @@ export function StudentProvider({ children }: { children: React.ReactNode }) {
       startTime: foundExam.startDate || new Date().toISOString(),
       durationMinutes: foundExam.durationMinutes || 60,
       totalMarks: foundExam.totalMarks || 100,
-      isResultsPublished: foundExam.resultsPublished || false
+      resultsPublished: foundExam.resultsPublished || false
     };
     
     await setDoc(doc(db, 'student_exams', docId), { 
@@ -188,7 +221,7 @@ export function StudentProvider({ children }: { children: React.ReactNode }) {
   const joinCourse = async (code: string) => {
     if (!code || !userData) throw new Error('Course code and active session are required.');
     const q = query(collection(db, 'subjects'), where('code', '==', code));
-    const snap = await getDocs(q);
+    const snap = await getDocs(q) as any;
     if (snap.empty) throw new Error('Invalid course code!');
     const subjectId = snap.docs[0].id;
     if (enrolledSubjectIds.includes(subjectId)) throw new Error('Already enrolled!');

@@ -81,7 +81,7 @@ export default function FacultyAnalyticsPage() {
            <select 
              value={selectedExamId || ''} 
              onChange={(e) => setSelectedExamId(e.target.value || null)}
-             className="px-4 py-2 rounded-xl text-xs font-bold bg-transparent text-slate-600 outline-none cursor-pointer"
+             className="px-4 py-2 rounded-xl text-xs font-bold bg-transparent text-black outline-none cursor-pointer"
            >
              <option value="">All Exams</option>
              {exams.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
@@ -160,7 +160,7 @@ export default function FacultyAnalyticsPage() {
                  <input 
                    type="text" 
                    placeholder="Search student..." 
-                   className="bg-slate-50 border border-transparent focus:bg-white focus:border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-bold outline-none transition-all w-48"
+                   className="bg-slate-50 border border-transparent focus:bg-white focus:border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-bold text-black placeholder:text-slate-600 outline-none transition-all w-48"
                    value={searchTerm}
                    onChange={e => setSearchTerm(e.target.value)}
                  />

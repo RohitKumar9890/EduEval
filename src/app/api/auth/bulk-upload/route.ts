@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
 import { verifyToken, checkRole } from '@/lib/auth-server';
 import * as xlsx from 'xlsx';

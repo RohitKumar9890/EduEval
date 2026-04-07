@@ -15,18 +15,6 @@ export async function verifyToken(req: Request): Promise<DecodedToken | null> {
   }
 
   const idToken = authHeader.split('Bearer ')[1];
-
-  // HANDLE MOCK TOKENS FOR DEMO/DEVELOPMENT
-  if (idToken.startsWith('mock-token-')) {
-    const role = idToken.split('mock-token-')[1];
-    return {
-      uid: `mock-uid-${role}`,
-      email: `${role}@mock.edu`,
-      role: role,
-      displayName: `Mock ${role.charAt(0).toUpperCase() + role.slice(1)}`
-    };
-  }
-
   try {
     const decodedToken = await adminAuth.verifyIdToken(idToken);
     return decodedToken as DecodedToken;
@@ -37,9 +25,6 @@ export async function verifyToken(req: Request): Promise<DecodedToken | null> {
 }
 
 export function checkRole(token: DecodedToken, roles: string[]): boolean {
-  if (!token) return false;
-  // PERMANENT SOLUTION: If no role is set in DB yet, default to 'faculty' to keep demo working
-  const userRole = (token.role || 'faculty').toLowerCase();
-  const allowedRoles = roles.map(r => r.toLowerCase());
-  return allowedRoles.includes(userRole);
+  if (!token || !token.role) return false;
+  return roles.includes(token.role);
 }

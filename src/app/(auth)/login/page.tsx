@@ -1,21 +1,26 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth, db } from '@/lib/firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { useState } from 'react';
+import { 
+  auth, 
+  db, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  doc, 
+  setDoc 
+} from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import {
-  Globe,
-  HelpCircle,
-  GraduationCap,
-  Mail,
-  Lock,
-  Eye,
-  Settings,
+import { 
+  Globe, 
+  HelpCircle, 
+  GraduationCap, 
+  Mail, 
+  Lock, 
+  Eye, 
+  Settings, 
   User
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -25,15 +30,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { signInWithGoogle, user, userData } = useAuth();
-
-  // Automatic Re-routing if already authenticated (especially for Mock Mode)
-  useEffect(() => {
-    const IS_MOCK = process.env.NEXT_PUBLIC_MOCK_MODE === 'true';
-    if (IS_MOCK && userData?.role === 'faculty') {
-      router.push('/faculty');
-    }
-  }, [userData, router]);
+  const { signInWithGoogle } = useAuth();
 
   const handleLogin = async (e?: React.FormEvent, directEmail?: string) => {
     if (e) e.preventDefault();
@@ -42,16 +39,7 @@ export default function LoginPage() {
     const loginEmail = directEmail || email;
     const loginPassword = password || 'demo';
 
-    const IS_MOCK = process.env.NEXT_PUBLIC_MOCK_MODE === 'true';
-
     try {
-      if (IS_MOCK) {
-        // Instant success in Mock Mode
-        toast.success(`Demo Login Successful!`);
-        router.push('/faculty');
-        return;
-      }
-
       // Auto-Provisioning for Demo Accounts in Live Firebase
       if (loginEmail.endsWith('@edueval.io')) {
         let role = 'student';
@@ -65,17 +53,17 @@ export default function LoginPage() {
           return;
         } catch (err: any) {
           if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
-            const cred = await createUserWithEmailAndPassword(auth, loginEmail, "demo123456");
-            await setDoc(doc(db, 'users', cred.user.uid), {
-              email: loginEmail,
-              role: role,
-              displayName: role.charAt(0).toUpperCase() + role.slice(1),
-              status: 'active',
-              joinedDate: new Date().toISOString()
-            });
-            toast.success(`Cloud Demo account auto-provisioned!`);
-            router.push(`/${role}`);
-            return;
+             const cred = await createUserWithEmailAndPassword(auth, loginEmail, "demo123456");
+             await setDoc(doc(db, 'users', cred.user.uid), {
+                email: loginEmail,
+                role: role,
+                displayName: role.charAt(0).toUpperCase() + role.slice(1),
+                status: 'active',
+                joinedDate: new Date().toISOString()
+             });
+             toast.success(`Cloud Demo account auto-provisioned!`);
+             router.push(`/${role}`);
+             return;
           }
           throw err;
         }
@@ -83,7 +71,6 @@ export default function LoginPage() {
 
       // Standard Auth
       await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
-      router.push('/faculty'); // Default redirect for standard auth in this context
     } catch (error: any) {
       toast.error(error.message.replace('Firebase:', '').trim());
     } finally {
@@ -93,17 +80,12 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     setLoading(true);
-    const IS_MOCK = process.env.NEXT_PUBLIC_MOCK_MODE === 'true';
-    if (IS_MOCK) {
-      toast.success('Successfully signed in with (Demo) Google!');
-      router.push('/faculty');
-      setLoading(false);
-      return;
-    }
-
     try {
       await signInWithGoogle();
       toast.success('Successfully signed in with Google!');
+      // Redirection is handled by the overall auth state usually, 
+      // but we can force a push to student/faculty/admin based on the new userData
+      // Since Google users default to 'student' in our provisioner:
       router.push('/student');
     } catch (error: any) {
       toast.error('Google Sign-In failed. Please try again.');
@@ -119,12 +101,8 @@ export default function LoginPage() {
         <div className="text-2xl font-bold text-[#1D1D35] tracking-tight hover:text-blue-600 transition-colors">
           <Link href="/">EduEval</Link>
         </div>
-
+        
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-500">
-          <Link href="#" className="hover:text-[#1D1D35] transition-colors">Programs</Link>
-          <Link href="#" className="hover:text-[#1D1D35] transition-colors">Faculty</Link>
-          <Link href="#" className="hover:text-[#1D1D35] transition-colors">Research</Link>
-          <Link href="#" className="hover:text-[#1D1D35] transition-colors">About</Link>
         </div>
 
         <div className="flex items-center gap-4 text-slate-500">
@@ -138,13 +116,13 @@ export default function LoginPage() {
 
       {/* Main Content Split */}
       <main className="flex-1 flex items-center justify-center p-6 sm:p-10">
-        <motion.div
+        <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="w-full max-w-[1000px] bg-white rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden border border-slate-100"
         >
-
+          
           {/* Left Column (Blue Branding) */}
           <div className="md:w-[45%] bg-[#0B4CEB] p-10 flex flex-col justify-between text-white relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
@@ -180,8 +158,8 @@ export default function LoginPage() {
             </div>
 
             <div className="flex flex-col gap-4 mb-6">
-              <button
-                type="button"
+              <button 
+                type="button" 
                 onClick={handleGoogleLogin}
                 className="flex items-center justify-center gap-3 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-all text-sm font-bold text-slate-700 shadow-sm active:scale-[0.98]"
               >
@@ -203,17 +181,17 @@ export default function LoginPage() {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Mail size={16} className="text-slate-400" />
                   </div>
-                  <input
-                    type="email"
+                  <input 
+                    type="email" 
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-[#f8f6ff] border border-transparent rounded-lg pl-10 pr-4 py-3 text-sm text-slate-700 outline-none focus:bg-white focus:border-[#0B4CEB] transition-all"
+                    className="w-full bg-[#f8f6ff] border border-transparent rounded-lg pl-10 pr-4 py-3 text-sm text-black placeholder:text-slate-600 outline-none focus:bg-white focus:border-[#0B4CEB] transition-all font-medium"
                     placeholder="name@university.edu"
                   />
                 </div>
               </div>
-
+ 
               <div className="space-y-1.5">
                 <div className="flex justify-between items-center">
                   <label className="text-xs font-bold text-slate-500">Password</label>
@@ -223,22 +201,22 @@ export default function LoginPage() {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Lock size={16} className="text-slate-400" />
                   </div>
-                  <input
-                    type="password"
+                  <input 
+                    type="password" 
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-[#f8f6ff] border border-transparent rounded-lg pl-10 pr-10 py-3 text-sm text-slate-700 outline-none focus:bg-white focus:border-[#0B4CEB] transition-all tracking-widest font-medium placeholder:tracking-normal placeholder:font-normal"
+                    className="w-full bg-[#f8f6ff] border border-transparent rounded-lg pl-10 pr-10 py-3 text-sm text-black placeholder:text-slate-600 outline-none focus:bg-white focus:border-[#0B4CEB] transition-all tracking-widest font-bold placeholder:tracking-normal placeholder:font-normal"
                     placeholder="••••••••"
                   />
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer">
-                    <Eye size={16} className="text-slate-400 hover:text-slate-600 transition-colors" />
+                     <Eye size={16} className="text-slate-400 hover:text-slate-600 transition-colors" />
                   </div>
                 </div>
               </div>
 
-              <button
-                type="submit"
+              <button 
+                type="submit" 
                 disabled={loading}
                 className="w-full bg-[#004de6] hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-all transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 text-sm mt-2 shadow-md shadow-blue-600/20"
               >

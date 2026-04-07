@@ -49,7 +49,7 @@ export default function ExamsPage() {
                <input 
                  type="text" 
                  placeholder="Enter Exam Code (e.g., MATH101-X)" 
-                 className="flex-1 px-3 py-3 bg-transparent outline-none font-bold text-[#1D1D35] placeholder:text-slate-400 placeholder:font-medium"
+                 className="flex-1 px-3 py-3 bg-transparent outline-none font-bold text-black placeholder:text-slate-600 placeholder:font-medium"
                  value={examCode}
                  onChange={(e) => setExamCode(e.target.value)}
                  required
@@ -121,7 +121,7 @@ export default function ExamsPage() {
                 </div>
                 <div className="text-right">
                    <span className="text-sm font-bold text-slate-400 block mb-1">Score</span>
-                   {exam.isResultsPublished ? (
+                   {exam.resultsPublished ? (
                       <span className="text-xl font-black text-emerald-600">{exam.score}/{exam.totalMarks}</span>
                    ) : (
                       <span className="text-xs font-bold text-slate-400 bg-slate-200 px-2 py-1 rounded-md">Results Pending</span>

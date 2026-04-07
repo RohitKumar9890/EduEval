@@ -25,10 +25,6 @@ export default function LandingPage() {
         </div>
         
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
-          <Link href="#" className="text-blue-600 border-b-2 border-blue-600 pb-1">Curriculum</Link>
-          <Link href="#" className="hover:text-blue-600 transition-colors">Mentors</Link>
-          <Link href="#" className="hover:text-blue-600 transition-colors">Pricing</Link>
-          <Link href="#" className="hover:text-blue-600 transition-colors">Resources</Link>
         </div>
 
         <div className="flex items-center gap-4">
@@ -62,9 +58,6 @@ export default function LandingPage() {
             >
               Get Started
             </Link>
-            <button className="bg-[#EBE9F8] hover:bg-[#E0DEEF] text-[#4A4568] px-8 py-3.5 rounded-xl font-semibold transition-all text-center">
-              Request Demo
-            </button>
           </div>
         </div>
 

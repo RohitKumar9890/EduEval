@@ -7,25 +7,18 @@ const api = axios.create({
 
 // Add a request interceptor to include the Firebase ID token
 api.interceptors.request.use(async (config) => {
-  const IS_MOCK = process.env.NEXT_PUBLIC_MOCK_MODE === 'true';
-
-  // Try to get token from Firebase (or Mock)
+  // Try to get token from Firebase
   try {
-    if (IS_MOCK) {
-      const isClient = typeof window !== 'undefined';
-      const mockUserStr = isClient ? localStorage.getItem('mock_user') : null;
-      if (mockUserStr) {
-        const { role } = JSON.parse(mockUserStr);
-        config.headers.Authorization = `Bearer mock-token-${role}`;
-      } else {
-        // Default to faculty if someone is trying to create an exam in mock mode
-        config.headers.Authorization = `Bearer mock-token-faculty`;
-      }
+    const user = auth.currentUser;
+    if (user) {
+      const token = await user.getIdToken();
+      config.headers.Authorization = `Bearer ${token}`;
     } else {
-      const user = auth.currentUser;
-      if (user) {
-        const token = await user.getIdToken();
-        config.headers.Authorization = `Bearer ${token}`;
+      // Check for mock user token
+      const mockUser = localStorage.getItem('mock_user');
+      if (mockUser) {
+        const { role } = JSON.parse(mockUser);
+        config.headers.Authorization = `Bearer mock-token-${role}`;
       }
     }
   } catch (error) {

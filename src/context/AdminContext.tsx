@@ -1,8 +1,15 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { 
+  db, 
+  collection, 
+  onSnapshot, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  doc 
+} from '@/lib/firebase';
 
 // --- Types ---
 export interface MockUser {
@@ -75,10 +82,10 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
   const [sections, setSections] = useState<Section[]>(initialSections);
 
   useEffect(() => {
-    const unsubUsers = onSnapshot(collection(db, 'users'), (snap) => setUsers(snap.docs.map(d => ({id: d.id, ...d.data()}) as any)));
-    const unsubSem = onSnapshot(collection(db, 'semesters'), (snap) => setSemesters(snap.docs.map(d => ({id: d.id, ...d.data()}) as any)));
-    const unsubSub = onSnapshot(collection(db, 'subjects'), (snap) => setSubjects(snap.docs.map(d => ({id: d.id, ...d.data()}) as any)));
-    const unsubSec = onSnapshot(collection(db, 'sections'), (snap) => setSections(snap.docs.map(d => ({id: d.id, ...d.data()}) as any)));
+    const unsubUsers = onSnapshot(collection(db, 'users'), (snap: any) => setUsers(snap.docs.map((d: any) => ({id: d.id, ...d.data()}) as any)));
+    const unsubSem = onSnapshot(collection(db, 'semesters'), (snap: any) => setSemesters(snap.docs.map((d: any) => ({id: d.id, ...d.data()}) as any)));
+    const unsubSub = onSnapshot(collection(db, 'subjects'), (snap: any) => setSubjects(snap.docs.map((d: any) => ({id: d.id, ...d.data()}) as any)));
+    const unsubSec = onSnapshot(collection(db, 'sections'), (snap: any) => setSections(snap.docs.map((d: any) => ({id: d.id, ...d.data()}) as any)));
     return () => { unsubUsers(); unsubSem(); unsubSub(); unsubSec(); };
   }, []);
 

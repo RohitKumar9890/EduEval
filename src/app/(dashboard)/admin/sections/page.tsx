@@ -56,11 +56,11 @@ export default function AdminSectionsPage() {
           <form onSubmit={handleCreate} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
              <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-500">Section Name</label>
-                <input type="text" value={name} onChange={e=>setName(e.target.value)} placeholder="e.g. Section C" className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm outline-none" required />
+                <input type="text" value={name} onChange={e=>setName(e.target.value)} placeholder="e.g. Section C" className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm text-black placeholder:text-slate-600 font-medium outline-none" required />
              </div>
              <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-500">Subject</label>
-                <select value={subject} onChange={e=>setSubject(e.target.value)} className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm outline-none">
+                <select value={subject} onChange={e=>setSubject(e.target.value)} className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm text-black font-medium outline-none cursor-pointer">
                    <option>Data Structures</option>
                    <option>Web Automation</option>
                    <option>Database Systems</option>
@@ -68,7 +68,7 @@ export default function AdminSectionsPage() {
              </div>
              <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-500">Assigned Faculty</label>
-                <select value={faculty} onChange={e=>setFaculty(e.target.value)} className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm outline-none">
+                <select value={faculty} onChange={e=>setFaculty(e.target.value)} className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm text-black font-medium outline-none cursor-pointer">
                    <option>Prof. Alan Turing</option>
                    <option>Prof. Grace Hopper</option>
                    <option>Prof. Ada Lovelace</option>
@@ -76,14 +76,14 @@ export default function AdminSectionsPage() {
              </div>
              <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-500">Semester</label>
-                <select value={semester} onChange={e=>setSemester(e.target.value)} className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm outline-none">
+                <select value={semester} onChange={e=>setSemester(e.target.value)} className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm text-black font-medium outline-none cursor-pointer">
                    <option>Fall 2026</option>
                    <option>Spring 2027</option>
                 </select>
              </div>
              <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-500">Maximum Capacity</label>
-                <input type="number" min="1" value={capacity} onChange={e=>setCapacity(Number(e.target.value))} className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm outline-none" required />
+                <input type="number" min="1" value={capacity} onChange={e=>setCapacity(Number(e.target.value))} className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm text-black font-medium outline-none" required />
              </div>
              
              <div className="md:col-span-2 flex justify-end mt-4">

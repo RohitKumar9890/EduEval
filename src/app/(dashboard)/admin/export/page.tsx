@@ -70,7 +70,7 @@ export default function AdminExportPage() {
             <select 
                value={exportType} 
                onChange={(e) => setExportType(e.target.value)}
-               className="w-full border border-slate-200 rounded-xl px-4 py-3.5 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition font-medium text-[#1D1D35]"
+               className="w-full border border-slate-200 rounded-xl px-4 py-3.5 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition font-medium text-black cursor-pointer"
             >
                <option value="all_data">Full Platform Backup (Users, Sections, Subjects, etc.)</option>
                <option value="all_users">All Users (Admin, Faculty, Student)</option>

@@ -82,15 +82,15 @@ export default function AdminSubjectsPage() {
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
              <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-500">Subject Code</label>
-                <input type="text" value={code} onChange={e=>setCode(e.target.value)} placeholder="e.g. CS101" className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm outline-none" />
+                <input type="text" value={code} onChange={e=>setCode(e.target.value)} placeholder="e.g. CS101" className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm text-black placeholder:text-slate-600 font-medium outline-none" />
              </div>
              <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-500">Subject Name</label>
-                <input type="text" value={name} onChange={e=>setName(e.target.value)} placeholder="e.g. Intro to CS" className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm outline-none" />
+                <input type="text" value={name} onChange={e=>setName(e.target.value)} placeholder="e.g. Intro to CS" className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm text-black placeholder:text-slate-600 font-medium outline-none" />
              </div>
              <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-500">Assign Faculty</label>
-                <select value={facultyId} onChange={e=>setFacultyId(e.target.value)} className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm outline-none">
+                <select value={facultyId} onChange={e=>setFacultyId(e.target.value)} className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm text-black font-medium outline-none cursor-pointer">
                    <option value="">Unassigned</option>
                    {facultyList.map(f => (
                      <option key={f.id} value={f.id}>{f.name}</option>
@@ -99,7 +99,7 @@ export default function AdminSubjectsPage() {
              </div>
              <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-500">Credits</label>
-                <input type="number" min="1" max="6" value={credits} onChange={e=>setCredits(Number(e.target.value))} className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm outline-none" />
+                <input type="number" min="1" max="6" value={credits} onChange={e=>setCredits(Number(e.target.value))} className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl px-4 py-2.5 text-sm text-black font-medium outline-none" />
              </div>
              
              <div className="md:col-span-2 flex justify-end mt-4">

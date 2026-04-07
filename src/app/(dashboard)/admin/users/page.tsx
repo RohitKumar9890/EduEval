@@ -91,13 +91,13 @@ export default function AdminUsersPage() {
         <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
            <div className="relative w-full sm:w-96">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-              <input 
-                type="text" 
-                placeholder="Search users..." 
-                className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+                <input 
+                  type="text" 
+                  placeholder="Search users..." 
+                  className="w-full bg-[#f8f6ff] border border-transparent focus:ring-4 focus:ring-blue-500/20 focus:border-[#0B4CEB] focus:bg-white transition-all rounded-xl pl-10 pr-4 py-2.5 text-sm text-black placeholder:text-slate-600 font-medium outline-none"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
            </div>
            
            <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -218,29 +218,29 @@ export default function AdminUsersPage() {
               <form onSubmit={handleUpdateUser} className="p-6 space-y-4">
                 <div className="space-y-1">
                   <label className="text-[10px] font-black text-slate-500 uppercase">Display Name</label>
-                  <input 
-                    type="text" 
-                    value={editingUser.name} 
-                    onChange={e => setEditingUser({...editingUser, name: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-200 focus:border-[#0B4CEB] focus:ring-2 focus:ring-blue-500/10 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
-                  />
+                    <input 
+                      type="text" 
+                      value={editingUser.name} 
+                      onChange={e => setEditingUser({...editingUser, name: e.target.value})}
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#0B4CEB] focus:ring-2 focus:ring-blue-500/10 rounded-xl px-4 py-2.5 text-sm text-black font-bold outline-none transition-all"
+                    />
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-black text-slate-500 uppercase">Email Address</label>
-                  <input 
-                    type="email" 
-                    value={editingUser.email} 
-                    onChange={e => setEditingUser({...editingUser, email: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-200 focus:border-[#0B4CEB] focus:ring-2 focus:ring-blue-500/10 rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
-                  />
+                    <input 
+                      type="email" 
+                      value={editingUser.email} 
+                      onChange={e => setEditingUser({...editingUser, email: e.target.value})}
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#0B4CEB] focus:ring-2 focus:ring-blue-500/10 rounded-xl px-4 py-2.5 text-sm text-black font-bold outline-none transition-all"
+                    />
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-black text-slate-500 uppercase">Assignment Role</label>
-                  <select 
-                    value={editingUser.role} 
-                    onChange={e => setEditingUser({...editingUser, role: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-200 focus:border-[#0B4CEB] focus:ring-2 focus:ring-blue-500/10 rounded-xl px-4 py-2.5 text-sm outline-none transition-all appearance-none"
-                  >
+                    <select 
+                      value={editingUser.role} 
+                      onChange={e => setEditingUser({...editingUser, role: e.target.value})}
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#0B4CEB] focus:ring-2 focus:ring-blue-500/10 rounded-xl px-4 py-2.5 text-sm text-black font-bold outline-none transition-all appearance-none cursor-pointer"
+                    >
                     <option value="admin">Administrator</option>
                     <option value="faculty">Faculty Member</option>
                     <option value="student">Student</option>

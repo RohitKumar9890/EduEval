@@ -76,7 +76,7 @@ export default function MaterialsPage() {
                   type="text" 
                   required
                   placeholder="e.g., Week 1 Slides"
-                  className="w-full border border-slate-200 rounded-xl px-4 py-3 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition"
+                  className="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition text-black placeholder:text-slate-600 font-bold appearance-none cursor-pointer shadow-sm"
                   value={formData.title}
                   onChange={(e) => setFormData({...formData, title: e.target.value})}
                 />
@@ -86,7 +86,7 @@ export default function MaterialsPage() {
               <div className="space-y-2">
                 <label className="text-sm font-bold text-slate-700">Associated Subject</label>
                 <select 
-                  className="w-full border border-slate-200 rounded-xl px-4 py-3 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition"
+                  className="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition text-black placeholder:text-slate-600 font-bold appearance-none cursor-pointer shadow-sm"
                   value={formData.subjectId}
                   onChange={(e) => setFormData({...formData, subjectId: e.target.value})}
                 >
@@ -100,7 +100,7 @@ export default function MaterialsPage() {
               <div className="space-y-2 md:col-span-2">
                 <label className="text-sm font-bold text-slate-700">Description</label>
                 <textarea 
-                  className="w-full border border-slate-200 rounded-xl px-4 py-3 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition h-24"
+                  className="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition h-24 text-black placeholder:text-slate-600 font-bold shadow-sm"
                   placeholder="Brief description of the material..."
                   value={formData.description}
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
@@ -111,7 +111,7 @@ export default function MaterialsPage() {
               <div className="space-y-2">
                 <label className="text-sm font-bold text-slate-700">Resource Type</label>
                 <select 
-                  className="w-full border border-slate-200 rounded-xl px-4 py-3 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition"
+                  className="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition text-black font-bold appearance-none cursor-pointer shadow-sm"
                   value={formData.type}
                   onChange={(e) => setFormData({...formData, type: e.target.value as 'video' | 'file'})}
                 >
@@ -130,7 +130,7 @@ export default function MaterialsPage() {
                     type="url" 
                     required
                     placeholder="https://youtube.com/..."
-                    className="w-full border border-slate-200 rounded-xl px-4 py-3 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition"
+                    className="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white focus:ring-2 focus:ring-emerald-500 outline-none transition text-black placeholder:text-slate-600 font-bold shadow-sm"
                     value={formData.url}
                     onChange={(e) => setFormData({...formData, url: e.target.value})}
                   />
@@ -139,7 +139,7 @@ export default function MaterialsPage() {
                     <p className="text-sm text-slate-500 font-medium">Click to upload or drag and drop</p>
                     <p className="text-xs text-slate-400 mt-1">PDF, DOCX, PPTX up to 10MB</p>
                     {/* Mock functionality for file upload URL */}
-                    <input type="text" placeholder="Mock file link for UI (e.g., file.pdf)" className="mt-4 text-xs p-1 text-center bg-transparent outline-none w-full border-b" value={formData.url} onChange={e => setFormData({...formData, url: e.target.value})} required/>
+                    <input type="text" placeholder="Mock file link for UI (e.g., file.pdf)" className="mt-4 text-xs p-1 text-center bg-transparent outline-none w-full border-b text-black font-bold placeholder:text-slate-600" value={formData.url} onChange={e => setFormData({...formData, url: e.target.value})} required/>
                   </div>
                 )}
               </div>

@@ -1,9 +1,18 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { onAuthStateChanged, User, signOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { auth, db } from '@/lib/firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { User } from 'firebase/auth';
+import { 
+  auth, 
+  db, 
+  onAuthStateChanged, 
+  signOut, 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  doc, 
+  getDoc, 
+  setDoc 
+} from '@/lib/firebase';
 
 interface AuthContextType {
   user: User | null;
@@ -17,8 +26,8 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   userData: null,
   loading: true,
-  logout: async () => { },
-  signInWithGoogle: async () => { },
+  logout: async () => {},
+  signInWithGoogle: async () => {},
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -27,39 +36,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const IS_MOCK = process.env.NEXT_PUBLIC_MOCK_MODE === 'true';
-
-    if (IS_MOCK) {
-      // Mock User for Demo
-      setUser({
-        uid: 'mock-uid-123',
-        email: 'faculty@edueval.com',
-        displayName: 'Demo Faculty',
-      } as any);
-      setUserData({
-        uid: 'mock-uid-123',
-        email: 'faculty@edueval.com',
-        displayName: 'Demo Faculty',
-        role: 'faculty',
-        status: 'active',
-      });
-      // Store in localStorage for the api.ts interceptor
-      localStorage.setItem('mock_user', JSON.stringify({
-        uid: 'mock-uid-123',
-        role: 'faculty',
-        email: 'faculty@edueval.com'
-      }));
-      setLoading(false);
-      return;
-    }
-
     // Only use standard Firebase Authentication now
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
       setUser(user);
       if (user) {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
-          setUserData({ ...userDoc.data(), uid: user.uid });
+          setUserData({ ...(userDoc.data() as Record<string, any>), uid: user.uid });
         }
       } else {
         setUserData(null);
@@ -71,10 +54,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const logout = async () => {
-    if (process.env.NEXT_PUBLIC_MOCK_MODE !== 'true') {
-      await signOut(auth);
-    }
-    localStorage.removeItem('mock_user');
+    await signOut(auth);
     window.location.href = '/login';
   };
 
@@ -89,20 +69,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       await setDoc(doc(db, 'users', user.uid), {
         email: user.email,
         displayName: user.displayName,
-        role: 'faculty', // PERMANENT SOLUTION: Default anyone to faculty for this demo
+        role: 'student', // Default role
         status: 'active',
         joinedDate: new Date().toISOString()
       });
       setUserData({
         email: user.email,
         displayName: user.displayName,
-        role: 'faculty',
+        role: 'student',
         status: 'active',
         joinedDate: new Date().toISOString(),
         uid: user.uid
       });
     } else {
-      setUserData({ ...userDoc.data(), uid: user.uid });
+      setUserData({ ...(userDoc.data() as Record<string, any>), uid: user.uid });
     }
   };
 

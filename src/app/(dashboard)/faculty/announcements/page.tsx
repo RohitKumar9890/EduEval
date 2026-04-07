@@ -68,7 +68,7 @@ export default function AnnouncementsPage() {
                   type="text" 
                   required
                   placeholder="e.g., Syllabus Change"
-                  className="w-full border border-slate-200 rounded-xl px-4 py-3 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition text-[#1D1D35] font-bold"
+                  className="w-full border border-slate-200 rounded-xl px-4 py-3 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition text-black placeholder:text-slate-600 font-bold"
                   value={formData.title}
                   onChange={(e) => setFormData({...formData, title: e.target.value})}
                 />
@@ -79,7 +79,7 @@ export default function AnnouncementsPage() {
                   Target Course
                 </label>
                 <select 
-                  className="w-full border border-slate-200 rounded-xl px-4 py-3 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition text-[#1D1D35] font-bold appearance-none"
+                  className="w-full border border-slate-200 rounded-xl px-4 py-3 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition text-black font-bold appearance-none cursor-pointer"
                   value={formData.subjectId}
                   onChange={(e) => setFormData({...formData, subjectId: e.target.value})}
                 >
@@ -98,7 +98,7 @@ export default function AnnouncementsPage() {
               <textarea 
                 required
                 placeholder="Write your announcement here..."
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition h-32 text-[#1D1D35] font-bold"
+                className="w-full border border-slate-200 rounded-xl px-4 py-3 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition h-32 text-black placeholder:text-slate-600 font-bold"
                 value={formData.content}
                 onChange={(e) => setFormData({...formData, content: e.target.value})}
               />
@@ -110,7 +110,7 @@ export default function AnnouncementsPage() {
               </label>
               <div className="flex gap-4">
                 {['low', 'normal', 'high'].map(priority => (
-                  <label key={priority} className={`flex-1 flex justify-center items-center gap-2 px-4 py-3 border rounded-xl cursor-pointer transition capitalize font-bold text-sm ${formData.priority === priority ? 'border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-500/20' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
+                  <label key={priority} className={`flex-1 flex justify-center items-center gap-2 px-4 py-3 border rounded-xl cursor-pointer transition capitalize font-extrabold text-sm ${formData.priority === priority ? 'border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-500/20' : 'border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-slate-50'}`}>
                     <input type="radio" name="priority" value={priority} checked={formData.priority === priority} onChange={() => setFormData({...formData, priority: priority as any})} className="hidden" />
                     {priority}
                   </label>

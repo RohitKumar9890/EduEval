@@ -248,7 +248,7 @@ export default function StudentDashboard() {
                     required
                     type="text"
                     placeholder="e.g. CS101-FALL"
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-lg font-bold text-[#1D1D35] placeholder:text-slate-300 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all uppercase"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-lg font-bold text-black placeholder:text-slate-600 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all uppercase"
                     value={courseCode}
                     onChange={(e) => setCourseCode(e.target.value)}
                   />
