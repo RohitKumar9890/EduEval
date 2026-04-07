@@ -2,16 +2,16 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { 
-  db, 
-  collection, 
-  onSnapshot, 
-  addDoc, 
-  doc, 
-  deleteDoc, 
-  updateDoc, 
-  query, 
-  where 
+import {
+  db,
+  collection,
+  onSnapshot,
+  addDoc,
+  doc,
+  deleteDoc,
+  updateDoc,
+  query,
+  where
 } from '@/lib/firebase';
 import api from '@/lib/api';
 import { toast } from 'react-hot-toast';
@@ -107,29 +107,34 @@ export function FacultyProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!userData) return;
 
-    const unsubExams = onSnapshot(collection(db, 'exams'), (snap: any) => setExams(snap.docs.map((d: any) => ({id: d.id, ...d.data()}) as any)));
-    const unsubMaterials = onSnapshot(collection(db, 'faculty_materials'), (snap: any) => setMaterials(snap.docs.map((d: any) => ({id: d.id, ...d.data()}) as any)));
-    const unsubAnnouncements = onSnapshot(collection(db, 'announcements'), (snap: any) => setAnnouncements(snap.docs.map((d: any) => ({id: d.id, ...d.data()}) as any)));
-    
+    const unsubExams = onSnapshot(collection(db, 'exams'), (snap: any) => setExams(snap.docs.map((d: any) => ({ id: d.id, ...d.data() }) as any)));
+    const unsubMaterials = onSnapshot(collection(db, 'faculty_materials'), (snap: any) => setMaterials(snap.docs.map((d: any) => ({ id: d.id, ...d.data() }) as any)));
+    const unsubAnnouncements = onSnapshot(collection(db, 'announcements'), (snap: any) => setAnnouncements(snap.docs.map((d: any) => ({ id: d.id, ...d.data() }) as any)));
+
     // Filter subjects by the logged-in faculty
     const subjectsQuery = query(collection(db, 'subjects'), where('facultyId', '==', userData.uid));
-    const unsubSubjects = onSnapshot(subjectsQuery, (snap: any) => setSubjects(snap.docs.map((d: any) => ({id: d.id, ...d.data()}) as any)));
-    
-    const unsubSubmissions = onSnapshot(collection(db, 'student_exams'), (snap: any) => setSubmissions(snap.docs.map((d: any) => ({id: d.id, ...d.data()}) as any)));
-    
+    const unsubSubjects = onSnapshot(subjectsQuery, (snap: any) => setSubjects(snap.docs.map((d: any) => ({ id: d.id, ...d.data() }) as any)));
+
+    const unsubSubmissions = onSnapshot(collection(db, 'student_exams'), (snap: any) => setSubmissions(snap.docs.map((d: any) => ({ id: d.id, ...d.data() }) as any)));
+
     return () => { unsubExams(); unsubMaterials(); unsubAnnouncements(); unsubSubjects(); unsubSubmissions(); };
   }, [userData]);
 
   const addExam = async (exam: Omit<Exam, 'id' | 'createdAt' | 'examCode'>) => {
     try {
-      await api.post(`/courses/${exam.subjectId}/exams`, {
+      // Direct Firestore call now that emails are removed
+      const examCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+      await addDoc(collection(db, 'exams'), {
         ...exam,
-        startDate: exam.startDate, // Explicitly pass for the API handler
+        examCode,
+        examsCount: 0,
+        resultsPublished: false,
+        createdAt: new Date().toISOString()
       });
-      toast.success('Exam created & students notified via email!');
+      toast.success('Exam successfully created and published!');
     } catch (error: any) {
       console.error('[FacultyContext] addExam error:', error);
-      toast.error('Failed to create exam via API.');
+      toast.error('Failed to create exam.');
     }
   };
 
@@ -138,8 +143,8 @@ export function FacultyProvider({ children }: { children: React.ReactNode }) {
   };
 
   const addAnnouncement = async (announcement: Omit<Announcement, 'id' | 'createdAt'>) => {
-    await addDoc(collection(db, 'announcements'), { 
-      ...announcement, 
+    await addDoc(collection(db, 'announcements'), {
+      ...announcement,
       createdAt: new Date().toISOString(),
       senderName: userData?.displayName || 'Faculty Member',
       senderRole: 'Faculty'
@@ -174,11 +179,11 @@ export function FacultyProvider({ children }: { children: React.ReactNode }) {
     announcementCount: announcements.length,
     topPerformers: [...submissions]
       .filter(s => s.status === 'completed')
-      .sort((a,b) => (b.score/b.totalMarks) - (a.score/a.totalMarks))
+      .sort((a, b) => (b.score / b.totalMarks) - (a.score / a.totalMarks))
       .slice(0, 3),
-    needsAttention: submissions.filter(s => s.status === 'completed' && (s.score/s.totalMarks) < 0.4),
+    needsAttention: submissions.filter(s => s.status === 'completed' && (s.score / s.totalMarks) < 0.4),
     averageScore: submissions.filter(s => s.status === 'completed').length > 0
-      ? (submissions.filter(s => s.status === 'completed').reduce((acc, curr) => acc + (curr.score/curr.totalMarks), 0) / submissions.filter(s => s.status === 'completed').length) * 100
+      ? (submissions.filter(s => s.status === 'completed').reduce((acc, curr) => acc + (curr.score / curr.totalMarks), 0) / submissions.filter(s => s.status === 'completed').length) * 100
       : 0,
     participationRate: 100 // Mock for now
   };
